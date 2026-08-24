@@ -494,6 +494,116 @@ ground, and even those use its own column naming.
 
 ---
 
+## 7. Other open cores: ForRocket and OpenTsiolkovsky
+
+Two further complete simulators are vendored here but given compact treatment rather than the
+full model-by-model breakdown above. Both are MIT-licensed and both work — the reason for the
+shorter profile is that neither is in use anywhere in the hobby ecosystem this report serves,
+and neither contributes a model formulation the other six lack.
+
+What they contribute is **architectural evidence**. Two independent teams, in different
+countries and different languages, converged on the same shape: a headless solver that reads
+a structured input file, integrates, and writes tabular output, with no GUI, no design editor,
+and **no geometry-based aerodynamics at all** — coefficients arrive as constants or tables
+from somewhere upstream. That is close to the separation of concerns the *common simulation
+core* section below argues for, and it is worth knowing that it has been built twice already.
+
+Both also share a limitation worth naming, because it follows from the same choice: neither
+can answer *"what happens if I change this fin?"* Both answer only *"given these
+coefficients, where does it go?"*
+
+### ForRocket
+
+**What it is.** An MIT-licensed C++ 6-DOF trajectory solver by Susumu Tanaka, built on
+Boost.odeint, Eigen, nlohmann/json, and GoogleTest. Its README states the scope in one line —
+*"Prvide only trajectory solver"* — and the tree honours it: JSON in, CSV out, no GUI, no
+plotting, no geometry.
+
+Four dynamics phases share one derivative interface and are switched between as the flight
+proceeds: a 3-DOF rail phase, 6-DOF free flight with attitude resolved aerodynamically, 6-DOF
+with commanded body rates, and 3-DOF descent under canopy. Integration is Boost.odeint's
+`runge_kutta_dopri5` driven on a fixed output grid; RK4 and Fehlberg 7(8) sit commented out
+beside it, so the scheme is a source edit rather than a configuration key. Engines are
+type-agnostic — liquid, solid, and hybrid are the same model with different tables — and
+gimbal angles and a full inertia tensor appear in the output, so TVC and 6-DOF are genuinely
+modelled rather than merely configured. A non-iterative **instantaneous impact point**
+calculation is included, a range-safety product no hobby-oriented package here carries.
+
+The Earth is a **rotating WGS84 ellipsoid for frames and geodesy** — the full ECI/ECEF/NED/body
+chain, with Vincenty geodesics for downrange — but **gravity is scalar inverse-square with no
+J2 term**, so "WGS84" describes the shape here, not the gravity field. Atmosphere is US
+Standard 1976; wind is a CSV table or nothing.
+
+Events are **scheduled rather than triggered**: cutoff, separation, despin, fairing jettison,
+and both parachutes are specified as times in seconds, each behind an enable flag, with forced
+apogee deployment the single state-triggered exception. This is a flight-plan model — the
+natural shape for a vehicle flown to a sequence, and the wrong shape for "deploy at apogee,
+whenever that turns out to be."
+
+**Status — read carefully, because the obvious signal is wrong.** GitHub reports a last push
+of 2026-07-08, and on that basis ForRocket looks like the most actively maintained project in
+this survey. It is not. **`master` has not been committed to since 2020-04-11.** The recent
+traffic is on `dev_minor-update` (2026-07-08) and `develop` (2025-04-28), neither of which has
+ever been merged. A "last push" date reports activity on *any* branch; it says nothing about
+the branch users actually get. ForRocket must not be described as actively maintained.
+
+The tree also ships **no validation evidence**: three GoogleTest files covering the sequence
+clock and interpolation, and nothing at trajectory level. Its model derivations are in a
+LaTeX technical document under `docs/TechnicalDocument/`.
+
+- Repo: <https://github.com/sus304/ForRocket>
+- Vendored at [`subs/forrocket`](../../subs/CLAUDE-forrocket.md), pinned at `10fdcd0`
+  (tip of `master`, **2020-04-11**).
+
+### OpenTsiolkovsky
+
+**What it is.** An MIT-licensed simulator from **Interstellar Technologies Inc.**, the
+Hokkaido launch company that flies the MOMO sounding rocket. **It is the only package in this
+survey maintained by an organization that actually launches vehicles**, and the tree shows it:
+the bundled examples are flight configurations for MOMO and for **SS-520-4**, the JAXA sounding
+rocket flown as the smallest orbital launcher ever built — real hardware, not tutorial cases.
+
+Three implementations coexist: a **Rust** engine (the live one, with a CLI and a WASM build), a
+**legacy C++** reference tree, and a **React/TypeScript** browser front end that drives the WASM
+build for 3-D trajectory and performance visualization. Deployment configuration for a hosted
+web version is in the repository.
+
+Gravity is **WGS84/EGM96 with the J2 perturbation** — a genuine oblateness model, the equal of
+MAPLEAF's `WGS84` setting and better than ForRocket's — over a WGS84 ellipsoid with iterative
+ECEF→LLH conversion and full ECI/ECEF/NED transforms. The integrator is selectable between
+fixed-step RK4 and adaptive Dormand–Prince 5(4). Thrust is modelled from vacuum Isp and vacuum
+thrust with throat diameter, nozzle expansion ratio, and exhaust pressure, so it is
+**pressure-corrected for altitude** rather than lumped into a single curve. Up to three stages,
+with stack mass accumulated from the top stage down in the standard launch-vehicle convention;
+jettisoned masses (fairings, spent hardware) are tracked as separate falling bodies with their
+own ballistic coefficients. Attitude configuration carries **gyro biases in deg/h** — an IMU
+error model — and atmospheric dispersion is available as an air-density variation ratio.
+Aerodynamics, as in ForRocket, are constants or tables only: axial and normal coefficients
+looked up against Mach × |angle|, or a ballistic-coefficient model during coast.
+
+**A caveat on its advertised DOF, which matters if the project is cited.** The README
+describes "three-degree-of-freedom and six-degree-of-freedom flight simulation with attitude
+control (TVC)." That is the union of the two implementations, not a description of the current
+engine. **The Rust solver integrates a seven-element translational state** — mass, ECI
+position, ECI velocity — with **no quaternion, no angular rates, and no moments**; attitude is
+prescribed from a table or a constant elevation/azimuth pair. The 6-DOF is in the legacy C++
+tree, whose state vector is fourteen elements and which defines the flight-mode enumerations
+that the JSON integers still name. The Rust configuration structures continue to parse
+`power flight mode` and a `6DoF` block, but the simulator reads neither. Cited precisely: the
+**live tree is a 3-DOF solver with prescribed attitude**; the 6-DOF is in the reference
+implementation beside it.
+
+The domain caveat is the more general one. This is launch-vehicle software: its input schema
+assumes staged vehicles, programmed attitude, orbital insertion, and range safety, and it
+carries none of the hobby-rocketry conventions — no motor database, no `.eng`/`.ork` import, no
+rail buttons, no recovery-device modelling beyond a ballistic coast.
+
+- Repo: <https://github.com/istellartech/OpenTsiolkovsky>
+- Vendored at [`subs/opentsiolkovsky`](../../subs/CLAUDE-opentsiolkovsky.md), pinned at
+  `a699805` (tip of `master`, 2025-09-28).
+
+---
+
 ## Comparative summary
 
 | | OpenRocket | RASAero II | RocketPy | CamRocSim | CamPyRoS |
