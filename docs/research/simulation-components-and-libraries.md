@@ -180,9 +180,12 @@ part of the simulation core.
 | [rjw57/thrustcurve](https://github.com/rjw57/thrustcurve) | Supporting lib | Apache-2.0 | **Dormant** (2015) | Older Python parser for amateur rocketry formats. |
 | [RocketSerializer](https://github.com/RocketPy-Team/RocketSerializer) | Supporting lib | MIT | Active — `master` 2026-07-05 | `.ork` → RocketPy converter; already covered in the survey. |
 | [openrocket-python-parser](https://github.com/AIAA-UTD-Comet-Rocketry/openrocket-python-parser) | Supporting lib | MIT | Created 2025-10, pushed 2026-08-23, 0 stars | Parses `.ork` XML and simulation data into Python objects and pandas DataFrames. A general-purpose `.ork` reader not tied to RocketPy's object model — closer to what a language-agnostic importer needs. Very new and unproven. |
+| [davesrocketshop/Rocket](https://github.com/davesrocketshop/Rocket) (FreeCAD Rocket workbench) | Adjacent tool | LGPL-2.1-or-later | Active — `master`, 78 stars | A standalone, non-OpenRocket implementation of readers for `.ork`, RockSim `.rkt`, **and** RASAero `.CDX1`, confirmed by inspecting `Rocket/Importer/{OpenRocket,Rocksim,RASAero}`. Each reader parses straight into FreeCAD `App::Document` objects rather than a portable intermediate form, so — like RocketSerializer for `.ork` — it is not adoptable as a library by a headless core without extraction. |
 
-No JavaScript `.ork` parser was found. RockSim `.rkt` and RASAero `.CDX1` have no
-standalone parser libraries either; the only implementations are inside OpenRocket.
+No JavaScript `.ork` parser was found (absence of evidence from this search, not a
+positive check — one could exist without surfacing here). RockSim `.rkt` and RASAero
+`.CDX1` are **not** OpenRocket-only, though: the FreeCAD Rocket workbench above
+implements independent readers for both, alongside its own `.ork` reader.
 
 ---
 

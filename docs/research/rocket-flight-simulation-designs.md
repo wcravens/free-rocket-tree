@@ -900,25 +900,26 @@ RocketPy/CamRocSim):
   (trajectories and dispersion ellipses), and a stable machine-readable results schema
   mirroring the input schema.
 
-**A smaller gap than assumed, on closer check.** The companion catalog's §8 states that
-RockSim `.rkt` and RASAero `.CDX1` have no standalone parser outside OpenRocket. A direct
-search turned up a counterexample: the FreeCAD **Rocket** workbench
+**A smaller gap than assumed, on closer check.** A direct search for standalone format
+readers turned up a counterexample to the assumption that RockSim `.rkt` and RASAero
+`.CDX1` have no reader outside OpenRocket: the FreeCAD **Rocket** workbench
 ([davesrocketshop/Rocket](https://github.com/davesrocketshop/Rocket), LGPL-2.1-or-later,
-78 stars, actively pushed as of this writing) ships its own SAX-based readers for both
-`rocksimdocument` (`.rkt`) and `rasaerodocument` (`.CDX1`), written independently of
-OpenRocket's Java implementation. The gap narrows rather than closes, though: those
-readers parse straight into FreeCAD document objects (`Rocket.Importer.Rocksim`,
+78 stars, actively pushed as of this writing) ships its own SAX-based readers for
+`.ork`, `rocksimdocument` (`.rkt`), **and** `rasaerodocument` (`.CDX1`), written
+independently of OpenRocket's Java implementation (the companion catalog's §8 table
+now lists it). The gap narrows rather than closes, though: those readers parse straight
+into FreeCAD document objects (`Rocket.Importer.OpenRocket`, `Rocket.Importer.Rocksim`,
 `Rocket.Importer.RASAero`, calling `FreeCAD.newDocument`/`makeRocket` as they go) rather
 than into a portable intermediate form, so — like RocketSerializer for `.ork` — they are
 bound to their host application's object model and are not reusable as a library by a
 different, headless core without extraction. **No `.ork` parser in JavaScript was found**
-by the same search; that half of the finding stands, though as an absence of evidence
+by the same search; that part of the finding stands, though as an absence of evidence
 rather than a positive check — a JavaScript reader could exist without surfacing in a
 GitHub search. Since §8's argument is that import capability defines what a replacement
 can replace, the practical measure is this: a core that cannot read `.ork`, `.rkt`, or
 `.CDX1` still cannot replace OpenRocket for anyone with an existing design library, and
 today those readers have to be written or extracted rather than adopted outright — even
-where a non-OpenRocket implementation exists, it comes welded to a different host
+where non-OpenRocket implementations exist, they come welded to a different host
 application, not as a drop-in library.
 
 ### 9. Library and architecture requirements
