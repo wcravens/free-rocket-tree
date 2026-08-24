@@ -13,3 +13,9 @@
 [submodule "subs/mapleaf"]
 	path = subs/mapleaf
 	url = https://github.com/henrystoldt/MAPLEAF.git
+[submodule "subs/forrocket"]
+	path = subs/forrocket
+	url = https://github.com/sus304/ForRocket.git
+[submodule "subs/opentsiolkovsky"]
+	path = subs/opentsiolkovsky
+	url = https://github.com/istellartech/OpenTsiolkovsky.git
