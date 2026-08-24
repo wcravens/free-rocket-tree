@@ -22,9 +22,9 @@ abandoned, and which are unusable on license grounds is a prerequisite for that.
 was read from the GitHub API on that date. **Dates are default-branch commit dates, not
 the API's `pushed_at` field.** That distinction was not made in this catalog's first pass
 and it mattered: `pushed_at` reports activity on *any* branch, and across both parts of this
-catalog it overstated currency by a year or more for five projects — ForRocket by six years,
-`ambiance` by about four, and `bamboo` by about two. Part 2 has now been rechecked against
-default-branch dates on the same basis as Part 1. Capability descriptions
+catalog it overstated currency by a year or more — ForRocket by six years, `ambiance` by
+about four, and `bamboo` by about two. Part 2 has now been rechecked against default-branch
+dates on the same basis as Part 1. Capability descriptions
 come from project READMEs and documentation and are **not** verified against source.
 Except where a row says otherwise, nothing in this catalog is vendored under
 [`subs/`](../../subs/CLAUDE.md); treat every capability claim here as weaker evidence than
