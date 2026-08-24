@@ -4,7 +4,8 @@
       "Edit(./subs/openrocket/**)",
       "Edit(./subs/rocketpy/**)",
       "Edit(./subs/campyros/**)",
-      "Edit(./subs/camrocsim/**)"
+      "Edit(./subs/camrocsim/**)",
+      "Edit(./subs/mapleaf/**)"
     ]
   },
   "hooks": {

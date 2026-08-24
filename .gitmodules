@@ -10,3 +10,6 @@
 [submodule "subs/camrocsim"]
 	path = subs/camrocsim
 	url = https://git.code.sf.net/p/camrocsim/code
+[submodule "subs/mapleaf"]
+	path = subs/mapleaf
+	url = https://github.com/henrystoldt/MAPLEAF.git
