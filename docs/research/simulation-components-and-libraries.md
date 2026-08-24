@@ -21,8 +21,10 @@ abandoned, and which are unusable on license grounds is a prerequisite for that.
 *Research date: 2026-08-24. Repository metadata — license, star count, archive status —
 was read from the GitHub API on that date. **Dates are default-branch commit dates, not
 the API's `pushed_at` field.** That distinction was not made in this catalog's first pass
-and it mattered: `pushed_at` reports activity on *any* branch, and for three projects here
-it overstated currency by a year or more — ForRocket by six years. Capability descriptions
+and it mattered: `pushed_at` reports activity on *any* branch, and across both parts of this
+catalog it overstated currency by a year or more for five projects — ForRocket by six years,
+`ambiance` by about four, and `bamboo` by about two. Part 2 has now been rechecked against
+default-branch dates on the same basis as Part 1. Capability descriptions
 come from project READMEs and documentation and are **not** verified against source.
 Except where a row says otherwise, nothing in this catalog is vendored under
 [`subs/`](../../subs/CLAUDE.md); treat every capability claim here as weaker evidence than
@@ -103,7 +105,7 @@ usable code.
 | [OpenVSP](https://github.com/OpenVSP/OpenVSP) + VSPAERO | **NASA Open Source Agreement 1.3** | Very active, 831 stars | NASA parametric geometry plus panel/vortex-lattice solver. Can generate coefficient tables from geometry. NOSA is a non-standard, non-OSI-friendly copyleft — check it carefully before any integration deeper than running it as an offline tool. |
 | [SU2](https://github.com/su2code/SU2) | LGPL-2.1 | Very active, 1784 stars | General-purpose compressible CFD. The high-fidelity end of coefficient generation. |
 | [OpenFOAM ToolChain for Rocket Aerodynamic Analysis](https://github.com/WyllDuck/OpenFOAM-ToolChain-for-Rocket-Aerodynamic-Analysis) | **None stated** | Last push 2026-04-27, 37 stars | A TUM student project: a documented subsonic/transonic/supersonic OpenFOAM workflow for extracting rocket aerodynamic characteristics. Valuable as *methodology* for producing validation-grade coefficient tables; unlicensed, so not embeddable. |
-| [datcom-parser](https://github.com/skyward-er/datcom-parser) | Not asserted | Last push 2023-01-19 | Skyward Experimental Rocketry's parser for Missile DATCOM `for006.dat` output. Relevant only to teams who already have DATCOM access. |
+| [datcom-parser](https://github.com/skyward-er/datcom-parser) | Not asserted | `master` 2022-10-22 | Skyward Experimental Rocketry's parser for Missile DATCOM `for006.dat` output. Relevant only to teams who already have DATCOM access. |
 
 **Recommendation for §3:** the pluggable-provider interface should be designed against
 three concrete providers that already exist — RocketPy's MIT Barrowman implementation,
@@ -116,14 +118,14 @@ The most consequential finding in this catalog:
 
 | Component | License | Status | Assessment |
 |---|---|---|---|
-| [nasa/cea](https://github.com/nasa/cea) | **Apache-2.0** | Repository created 2025-12-22, actively pushed, 176 stars | NASA's **Chemical Equilibrium with Applications**, re-implemented and released on GitHub under a permissive license. Fortran core with C and Python bindings, 2,000+ species, rocket-performance mode. Historically CEA was distributed as registered executables under restrictive terms; a permissively licensed, binding-friendly CEA changes what a shared propulsion module can do. |
+| [nasa/cea](https://github.com/nasa/cea) | **Apache-2.0** | Repository created 2025-12-22; `main` 2026-08-24, 176 stars | NASA's **Chemical Equilibrium with Applications**, re-implemented and released on GitHub under a permissive license. Fortran core with C and Python bindings, 2,000+ species, rocket-performance mode. Historically CEA was distributed as registered executables under restrictive terms; a permissively licensed, binding-friendly CEA changes what a shared propulsion module can do. |
 | [RocketCEA](https://rocketcea.readthedocs.io/) | **GPL-3.0** | Active (v1.2.3) | The established Python wrapper around the legacy CEA FORTRAN, with mixture-ratio exploration and optimization tooling. Mature and widely used — but copyleft, where `nasa/cea` is not. That contrast is the whole decision. |
 | [Cantera](https://cantera.org/) | BSD-3-Clause | Very active (v3.2.0) | General chemical kinetics, thermodynamics, and transport. The heavier, more general alternative to CEA-style equilibrium. |
 | [CoolProp](http://www.coolprop.org/) | MIT | Active (v8.0.0) | Thermophysical fluid properties — the standard dependency for the survey's §4 "tank models with fluid properties" requirement for liquids and hybrids. |
-| [openMotor](https://github.com/reilleya/openMotor) | GPL-3.0 | **Active** — last push 2026-07-08, 618 stars | The community-standard open solid-motor internal ballistics simulator, and the effective successor to BurnSim. **Fast Marching Method** grain regression, so arbitrary core geometries work; BATES/Finocyl/Star plus DXF import; nozzle model; **exports `.eng`** and reads/writes BurnSim files. Ballistics per Sutton and Nakka. *Unverified: whether the ballistics core is separable from the PyQt6 GUI* — the README documents no headless API, and that separability is the question that decides whether it can be a component or only a producer of `.eng` files. |
+| [openMotor](https://github.com/reilleya/openMotor) | GPL-3.0 | **Active** — `staging` 2026-07-08, 618 stars | The community-standard open solid-motor internal ballistics simulator, and the effective successor to BurnSim. **Fast Marching Method** grain regression, so arbitrary core geometries work; BATES/Finocyl/Star plus DXF import; nozzle model; **exports `.eng`** and reads/writes BurnSim files. Ballistics per Sutton and Nakka. Develops on **`staging`**, not `master` — clone the wrong branch and you get stale code. *Unverified: whether the ballistics core is separable from the PyQt6 GUI* — the README documents no headless API, and that separability is the question that decides whether it can be a component or only a producer of `.eng` files. |
 | [OpenBurn](https://github.com/tuxxi/OpenBurn) | GPL-3.0 | **Abandoned** — last push 2018-07-12, 19 commits | Superseded by openMotor. Listed so it is not rediscovered as a live option. |
 | [HRAP](https://github.com/rnickel1/HRAP_Source) — Hybrid Rocket Analysis Program | GPL-3.0 | Active — last push 2026-03-11, 41 stars | Thermodynamic-equilibrium simulation of **self-pressurizing hybrid motors** (saturated nitrous oxide): adiabatic oxidizer tank, combustion chamber, isentropic nozzle, semi-empirical efficiency factors. Python and MATLAB versions, with a published theory document. The most credible open hybrid-motor model found. |
-| [bamboo](https://github.com/cuspaceflight/bamboo) | **AGPL-3.0** | Last push 2024-09-25, 33 stars | Cambridge University Spaceflight's liquid-engine cooling-system modelling. AGPL makes it effectively unembeddable for most consumers; note the same institution's CamPyRoS licensing pattern. |
+| [bamboo](https://github.com/cuspaceflight/bamboo) | **AGPL-3.0** | `master` 2022-06-04, 33 stars | Cambridge University Spaceflight's liquid-engine cooling-system modelling. AGPL makes it effectively unembeddable for most consumers; note the same institution's CamPyRoS licensing pattern. |
 
 ### §5 Environment
 
@@ -132,12 +134,12 @@ shared core to hand-roll any of these.
 
 | Need | Library | License | Status |
 |---|---|---|---|
-| ISA / standard atmosphere | [ambiance](https://github.com/airinnova/ambiance) | Apache-2.0 | Active (2026-04-13), 46 stars. Full ICAO Standard Atmosphere 1993. |
+| ISA / standard atmosphere | [ambiance](https://github.com/airinnova/ambiance) | Apache-2.0 | **Dormant** — `master` 2022-10-06, 46 stars. Full ICAO Standard Atmosphere 1993, a fixed standard the library implements completely; dormancy here means finished, not abandoned. |
 | US Standard Atmosphere 1976 to 1000 km | PDAS `atmosphere` | Public domain | Static; includes hot/cold/polar/tropical non-standard variants. |
 | Upper-atmosphere density/temperature | [pymsis](https://github.com/SWxTREC/pymsis) | MIT | Active (2026-07-08), 38 stars. NRL's own MSIS wrapper — MSIS2.0/2.1 and NRLMSISE-00. The best-provenance option. |
 | NRLMSISE-00 (alternatives) | [fluids.atmosphere](https://github.com/CalebBell/fluids) (MIT, very active, 450 stars, also bundles HWM93/HWM14 wind); [pynrlmsise00](https://github.com/st-bender/pynrlmsise00) (GPL-2.0, 2024-09-30); [ATMOS/pyatmos](https://github.com/lcx366/ATMOS) (MIT, 2024-11-05, adds COESA76 and JB2008) | mixed | — |
 | Horizontal wind (climatological) | HWM14, via `fluids.atmosphere` | MIT | The empirical upper-atmosphere wind counterpart to MSIS. |
-| Soundings and forecast weather | [MetPy](https://unidata.github.io/MetPy/) (BSD-3), [siphon](https://github.com/Unidata/siphon) (BSD-3, THREDDS/Wyoming sounding access), [SounderPy](https://github.com/kylejgillett/sounderpy) (MIT, retrieves RAOB/ACARS/model/reanalysis profiles), [Herbie](https://github.com/blaylockbk/Herbie) (MIT, NWP model archive access) | permissive | All active. Collectively they cover the weather sources RocketPy fetches, as a decoupled optional layer — which is precisely the §9 "no network dependencies in the core" separation. |
+| Soundings and forecast weather | [MetPy](https://unidata.github.io/MetPy/) (BSD-3), [siphon](https://github.com/Unidata/siphon) (BSD-3, THREDDS/Wyoming sounding access), [SounderPy](https://github.com/kylejgillett/sounderpy) (MIT, retrieves RAOB/ACARS/model/reanalysis profiles), [Herbie](https://github.com/blaylockbk/Herbie) (MIT, NWP model archive access, `main` 2026-06-07) | permissive | All active. Collectively they cover the weather sources RocketPy fetches, as a decoupled optional layer — which is precisely the §9 "no network dependencies in the core" separation. |
 | Geodesy and datums | [pyproj](https://pyproj4.github.io/pyproj/) (MIT, PROJ bindings), [GeographicLib](https://geographiclib.sourceforge.io/) (MIT, C++/Python/Java/JS) | MIT | Active. Geodesic distance, WGS84 conversions, and local-tangent-plane transforms — the §5 geodesy requirement, solved. |
 
 ### §6 Events, recovery, and control
@@ -156,12 +158,12 @@ a small, cleanly licensed component.
 
 | Component | License | Status | Assessment |
 |---|---|---|---|
-| [thrustcurve.org](https://www.thrustcurve.org/) — [thrustcurve3](https://github.com/JohnCoker/thrustcurve3) | ISC | Active (2026-08-19) | The site itself is open source under a permissive license, with a documented API. The survey names thrustcurve.org as the motor-data source; that its implementation is ISC-licensed matters for anyone building on it. |
+| [thrustcurve.org](https://www.thrustcurve.org/) — [thrustcurve3](https://github.com/JohnCoker/thrustcurve3) | ISC | Active — `master` 2026-08-12 | The site itself is open source under a permissive license, with a documented API. The survey names thrustcurve.org as the motor-data source; that its implementation is ISC-licensed matters for anyone building on it. |
 | [thrustcurve-db](https://github.com/broofa/thrustcurve-db) | ISC (per npm) | Active (2026-05-20), v4.0.1 | The whole ThrustCurve motor database rebundled as a **single static JSON file**, CDN-served, with thrust samples included. The lowest-friction way for any tool to ship motor data without an API dependency. |
 | [openrocket/motor-database](https://github.com/openrocket/motor-database) | GPL-3.0 | **New** — created 2025-12-21, pushed 2026-08-24 | OpenRocket's own motor database, built from thrustcurve.org and other sources, as a separate repository. A new and directly relevant interchange asset that postdates the survey's research. |
 | [rasp-parser](https://github.com/gituser12981u2/rasp-parser) | MIT | Created 2025-05, quiet since | Standalone RASP `.eng` parser with validation and cubic-spline integration for impulse. Small and new; the format is simple enough that this is a convenience, not a critical dependency. |
 | [rjw57/thrustcurve](https://github.com/rjw57/thrustcurve) | Apache-2.0 | **Dormant** (2015) | Older Python parser for amateur rocketry formats. |
-| [RocketSerializer](https://github.com/RocketPy-Team/RocketSerializer) | MIT | Active (2026-08-16) | `.ork` → RocketPy converter; already covered in the survey. |
+| [RocketSerializer](https://github.com/RocketPy-Team/RocketSerializer) | MIT | Active — `master` 2026-07-05 | `.ork` → RocketPy converter; already covered in the survey. |
 | [openrocket-python-parser](https://github.com/AIAA-UTD-Comet-Rocketry/openrocket-python-parser) | MIT | Created 2025-10, pushed 2026-08-23, 0 stars | Parses `.ork` XML and simulation data into Python objects and pandas DataFrames. A general-purpose `.ork` reader not tied to RocketPy's object model — closer to what a language-agnostic importer needs. Very new and unproven. |
 
 No JavaScript `.ork` parser was found. RockSim `.rkt` and RASAero `.CDX1` have no
