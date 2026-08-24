@@ -410,6 +410,90 @@ project's own `novus_sim` format. There is **no design file format and no import
 
 ---
 
+## 6. MAPLEAF
+
+**What it is.** Open-source (**MIT**) Python 6-DOF simulation framework from the University
+of Calgary — the *Modular Aerospace Prediction Lab for Engines and Aero Forces* — by Henry
+Stoldt and colleagues, described in a 2021 AIAA conference paper. Python 3.6+ with Cython
+hot paths for vectors, quaternions, fin functions, and logging. Unlike RocketPy it is
+neither primarily a library nor an application: its interface is a **declarative `.mapleaf`
+text file**, and rockets are configured rather than constructed.
+
+**Dormant, and mis-signalled as active.** Final commit on `master` 2021-12-11. GitHub
+reports a later push date, but that traffic is on eight unmerged student capstone branches
+(`ENMECapstone20212022`, `Capstone_TVC`, `TabulatedInputs`, …). The default branch — and the
+tree pinned here — is the 2021 one.
+
+- Repo: <https://github.com/henrystoldt/MAPLEAF>
+- Paper: Stoldt, Quinn, Kavanagh & Johansen, AIAA 2021-3267
+- Vendored at [`subs/mapleaf`](../../subs/CLAUDE-mapleaf.md), pinned at `af970d3`
+  (tip of `master`, 2021-12-11).
+
+### Models
+
+| Aspect | Model |
+|---|---|
+| Flight dynamics | 6-DOF rigid body during ascent, with quaternion attitude. **DOF is phase-dependent, not user-selected:** `_switchTo3DoF` swaps the integrator to a 3-DOF body when a recovery system deploys, since orientation under canopy is not modelled. A `StatefulRigidBody` variant integrates arbitrary extra named state alongside the rigid-body state — the hook actuators and control systems use. |
+| Earth/gravity | **A single selectable switch**, `EarthModel` ∈ `None` / `Flat` / `Round` / `WGS84`, and the integration frame follows the choice: launch-tower frame for `None` and `Flat`, **Earth-Centered Inertial** for `Round` and `WGS84`. `Round` is a rotating sphere with uniform inverse-square gravity; `WGS84` is a rotating ellipsoid with a **J2** gravity model. Documented neglects for `WGS84`: polar wobble, third-body gravity, tides, and solar radiation pressure. No other tool here exposes the Earth model as one configuration key. |
+| Aerodynamics | **A provider interface, not a fixed model** — force sources are components in the same list as physical parts, interchangeable within one vehicle: geometry build-up (Barrowman-class `CN`/`CP`, plus skin friction, base drag, and blunt-body and cross-flow terms) from nose cone, body tube, fin, and boat-tail components; `AeroForce` (constant coefficients); `AeroDamping` (constant damping derivatives, moments only); and `TabulatedAeroForce`, which interpolates a CSV of arbitrary dimensionality keyed on any of **Mach, altitude, unit Reynolds, total AOA, roll angle, AOA, or AOSS**. An expression-defined provider (`CalculatedAeroForce`) is described in the template but is marked *"still needs to be implemented"* and is **not present in the pinned tree**. |
+| Integrator | **Nine Runge–Kutta schemes in-tree**, chosen by name: fixed-step `Euler`, `RK2Midpoint`, `RK2Heun`, `RK4`, `RK4_3/8`; adaptive `RK12`, `RK23` (Bogacki–Shampine), `RK45` (Dormand–Prince, the default), `RK78`. Adaptive schemes take a **Butcher tableau in a documented text format**, so adding a scheme is data rather than code. |
+| Step-size control | Its own sub-model: `constant`, `elementary` (safety-factor), or a **PID controller** on a target-error metric blending position, velocity, and — in 6-DOF — angular-orientation error. Steps estimated above 100× target error are discarded and recomputed. Crucially, **adaptive stepping is deliberately overridden near events**: the step shrinks toward a configured floor approaching a detected trigger, because altitude-triggered events otherwise resolve only to step boundaries. Time-deterministic events are resolved exactly. |
+| Atmosphere | `USStandardAtmosphere` computed exactly, `Constant`, or `TabulatedAtmosphere` reading h/T/P/ρ/μ columns. |
+| Wind | Five models: `Constant`; `SampledGroundWindData` (weighted sampling across named **wind-rose** sites by launch month); `SampledRadioSondeData` (the same over **radiosonde** profiles, with ASL→AGL correction); `Hellman` power-law shear over a ground model; and `CustomWindProfile` from file. Sampling takes an explicit random seed for repeatability. **All file-based — no live-weather ingestion.** |
+| Turbulence | `PinkNoise1D` / `2D` / `3D`, seeded per axis, strength set by turbulence intensity or velocity σ; or `customSineGust`, a NASA HDBK-1001-shaped gust layer. Turbulence is switched off under canopy by default, purely to permit larger descent steps. |
+| Events, staging, recovery | Stage separation triggers on `apogee`, `ascendingThroughAltitude`, `descendingThroughAltitude`, `motorBurnout`, or `timeReached`; a `simEventDetector` evaluates these and drives the step-shrinking above. Recovery systems support an arbitrary number of stages. |
+| Control | A `ControlSystem` with a PID moment controller in constant-gain or **gain-scheduled** form, scheduled by the same parameter keys the aero tables use. A fixed control update rate caps the time step; if adaptive stepping is requested alongside it, MAPLEAF substitutes constant RK4 for ascent and restores adaptive stepping for the uncontrolled descent. |
+| Dispersion | **Any scalar or vector key in the entire definition** becomes stochastic by adding a `_stdDev` sibling — implemented in the configuration reader, not in a Monte Carlo module, so no per-parameter support code exists anywhere. Normal distributions only. |
+| Optimization | **Particle swarm** (pyswarms) or **`scipy.optimize.minimize`**, with cost functions written as Python expressions over log columns, and **nestable inner optimization** running inside every outer cost evaluation. No other package in this survey has design optimization at all. |
+
+### Simulation input parameters
+
+Everything is supplied through one `.mapleaf` file — brace-delimited, arbitrarily nested
+key–value, one pair per line, key and value split on the first whitespace, no multiline
+values. `SimDefinitionTemplate.mapleaf` at the repo root documents every option and doubles
+as the reference manual.
+
+Two reader features shape how the format is used in practice. **Derived dictionaries** let a
+dictionary be defined as a modification of a previously defined one, so a family of related
+configurations is expressed as diffs rather than copies — the V&V case files rely on it.
+And the **`_stdDev` convention** above means the same file describes both a nominal vehicle
+and its dispersion, with no separate stochastic configuration.
+
+Rocket geometry is hierarchical: component positions are relative to the stage tip, with CG
+and moment of inertia relative to the component, and per-stage constant mass/CG/MOI
+overrides available to bypass component build-up entirely.
+
+### File formats
+
+`.mapleaf` in; **CSV** for every table (aerodynamic coefficients, PID gain schedules,
+atmosphere profiles, wind profiles); plain-text logs out, at four verbosity levels, the
+highest of which post-processes the force log to add force and moment coefficients.
+
+**There is no `.ork`, `.rkt`, `.CDX1`, or `.eng` import.** MAPLEAF shares no design or motor
+interchange with the rest of the ecosystem — its coefficient CSVs are its only common
+ground, and even those use its own column naming.
+
+### Portability / re-use
+
+**Good by licence and architecture; poor by maintenance.**
+
+- **MIT** — the second permissively licensed complete core in this survey, and the only other
+  one besides RocketPy that could be lifted into a GPL-incompatible product.
+- **Pip-installable, with a CLI and an importable package.** The runner layer
+  (`SingleSimulations`, `Batch`, `MonteCarlo`, `Optimization`, `Convergence`) sits *above* the
+  rocket and environment model rather than beside it, so the model is reusable under a
+  different driver — the cleanest seam of the five open cores for headless embedding.
+- **A published V&V suite that ships its own reference data** — see §9 below.
+- Against that: **dormant since 2021**, with a 2021-era dependency set that includes
+  `matplotlib==3.2.2` as a **hard pin**, not a floor. Combined with Cython extensions compiled
+  at install time, a modern install would have to build both from source. *Unverified:*
+  whether MAPLEAF still installs on a current Python — this report reads the pinned tree, it
+  does not run it, and no claim either way should be made without testing.
+- The Cython sources mean the vendored tree is **not runnable without a build step**, unlike
+  RocketPy or CamPyRoS.
+
+---
+
 ## Comparative summary
 
 | | OpenRocket | RASAero II | RocketPy | CamRocSim | CamPyRoS |
