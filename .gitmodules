@@ -1,3 +1,6 @@
 [submodule "subs/openrocket"]
 	path = subs/openrocket
 	url = https://github.com/openrocket/openrocket.git
+[submodule "subs/rocketpy"]
+	path = subs/rocketpy
+	url = https://github.com/RocketPy-Team/RocketPy.git

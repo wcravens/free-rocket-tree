@@ -1,7 +1,8 @@
 {
   "permissions": {
     "deny": [
-      "Edit(./subs/openrocket/**)"
+      "Edit(./subs/openrocket/**)",
+      "Edit(./subs/rocketpy/**)"
     ]
   },
   "hooks": {

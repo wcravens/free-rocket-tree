@@ -14,6 +14,14 @@ the Java desktop model-rocket design and flight-simulation application at [openr
 Read `./CLAUDE-openrocket.md` before working in that tree; it covers the build, module layout,
 domain model, and conventions.
 
+## RocketPy
+
+`./rocketpy` is a submodule of [RocketPy](https://github.com/RocketPy-Team/RocketPy) — the Python
+six-degrees-of-freedom rocket flight simulation library from the RocketPy Team.
+
+Read `./CLAUDE-rocketpy.md` before working in that tree; it covers the environment, package layout,
+domain model, and conventions.
+
 ## Adding a submodule
 
 The read-only rule is enforced in two places, and only one of them generalizes:
