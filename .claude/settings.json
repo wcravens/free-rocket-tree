@@ -2,7 +2,26 @@
   "permissions": {
     "deny": [
       "Edit(./subs/**)",
-      "Write(./subs/**)"
+      "Edit(subs/**)",
+      "Write(./subs/**)",
+      "Write(subs/**)",
+      "NotebookEdit(./subs/**)",
+      "NotebookEdit(subs/**)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Write|Edit|MultiEdit|NotebookEdit|mcp__plugin_serena_serena__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PROJECT_DIR}/.claude/hooks/protect-subs.sh\"",
+            "timeout": 10,
+            "statusMessage": "Checking subs/ write guard"
+          }
+        ]
+      }
     ]
   }
 }
