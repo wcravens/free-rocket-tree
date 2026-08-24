@@ -32,22 +32,7 @@ the corresponding claims in the eight-package survey.*
 
 ## Part 1 — Flight simulators not in the survey
 
-### 1.1 MAPLEAF — promoted into the survey
-
-MAPLEAF was catalogued here in the first pass and has since been **promoted into the main
-survey**, where it is now [§6](rocket-flight-simulation-designs.md#6-mapleaf) with the same
-full treatment the other packages receive. It is a complete flight-simulation package, not a
-component, and it is vendored and pinned at
-[`subs/mapleaf`](../../subs/CLAUDE-mapleaf.md) so its claims are checkable against source —
-the standard this catalog explicitly does not meet.
-
-Read the survey section rather than a summary here. Two of the claims originally made in this
-catalog did not survive verification against the pinned tree and are corrected there: its
-expression-defined aerodynamic provider is **declared but unimplemented**, and its status is
-best described by its **default branch** (`master`, 2021-12-11) rather than the later push date
-reported below for other projects.
-
-### 1.2 Other open-source flight simulators
+### 1.1 Other open-source flight simulators
 
 | Project | License | Language | Default branch | Stars | What it is |
 |---|---|---|---|---|---|
@@ -67,7 +52,7 @@ push 2023-10-18) and [calstar/SIL](https://github.com/calstar/SIL) (C++, last pu
 un-embeddable. This is common enough in team-built rocketry code to be worth a
 consortium convention of its own.
 
-### 1.3 Closed and commercial tools, for completeness
+### 1.2 Closed and commercial tools, for completeness
 
 The survey covers RASAero II as its closed-source case study. The others in this
 category, none of which can be a component:
@@ -127,7 +112,7 @@ The transonic/supersonic middle remains the genuine gap, exactly as the survey c
 
 ### §4 Propulsion
 
-The most consequential finding in this catalog after MAPLEAF:
+The most consequential finding in this catalog:
 
 | Component | License | Status | Assessment |
 |---|---|---|---|
@@ -160,7 +145,7 @@ shared core to hand-roll any of these.
 No general-purpose library exists for rocket recovery-event logic; it is inherently
 part of the simulation core. What the ecosystem does supply is **prior art on the
 software-in-the-loop boundary**: AeroVECTOR's serial bridge to an Arduino-class flight
-computer (§1.2), RocketPy's noisy-sensor trigger callbacks, and OpenRocket's
+computer (§1.1), RocketPy's noisy-sensor trigger callbacks, and OpenRocket's
 `SimulationListener` family — with FARS as evidence the listener interface is
 expressive enough for third parties to build on without forking. For structural limits
 adjacent to recovery, [Fin-Flutter-Velocity-Calculator](https://github.com/jkb-git/Fin-Flutter-Velocity-Calculator)
@@ -195,10 +180,6 @@ RocketPy's MIT Barrowman surfaces.
 
 **Mine, fork, or evaluate** — real value, but with a condition attached:
 
-- **MAPLEAF** — MIT and architecturally closest to the target. **Now promoted into the
-  survey (§6) and vendored**; the open question is unchanged and still the highest-value
-  thing to check next: whether a **2021**-era Python/Cython package with a hard
-  `matplotlib==3.2.2` pin still builds on a current interpreter.
 - **openMotor** — active and community-standard, but its usability as a *library*
   rather than an application is unverified.
 - **HRAP** — the credible open hybrid-motor model; GPL-3.0.
@@ -221,33 +202,32 @@ RocketPy's MIT Barrowman surfaces.
 
 ## Part 4 — What this changes in the survey
 
-1. **The survey's package list had a real omission — now closed.** MAPLEAF met the
-   survey's inclusion bar (6-DOF, published, open) and has since been given a full
-   section there (§6) and vendored at `subs/mapleaf`, with its claims re-checked against
-   source. ForRocket and OpenTsiolkovsky were vendored alongside it and profiled compactly
-   (§7). Re-verification changed two things this catalog had asserted from documentation:
-   MAPLEAF's expression-defined aero provider is **unimplemented**, and OpenTsiolkovsky's
-   **live Rust solver is 3-DOF**, not the 6-DOF its README advertises.
+1. **The survey's package list had real omissions — now closed.** ForRocket and
+   OpenTsiolkovsky met the survey's inclusion bar, and both have since been vendored
+   under `subs/` and profiled in the survey's §7, with their claims checked against
+   pinned source rather than documentation. Re-verification overturned one thing this
+   catalog had asserted from a README: OpenTsiolkovsky's **live Rust solver is 3-DOF
+   with prescribed attitude**, not the 6-DOF its documentation advertises — that sits in
+   the legacy C++ tree beside it.
 
 2. **"Permissive core" is no longer a set of one.** The survey's conclusion that
-   RocketPy's MIT license is why it embeds everywhere still holds, but MAPLEAF (MIT),
-   ForRocket (MIT), and OpenTsiolkovsky (MIT) show the pattern is spreading. The
-   copyleft problem is concentrated in the *oldest* projects.
+   RocketPy's MIT license is why it embeds everywhere still holds, but ForRocket (MIT)
+   and OpenTsiolkovsky (MIT) show the pattern is spreading, and NASA's own CEA moving to
+   Apache-2.0 (§4) is the same shift arriving in propulsion. The copyleft problem is
+   concentrated in the *oldest* projects — the survey's observation #4 works the full
+   count through.
 
 3. **The propulsion licensing barrier has moved.** With NASA's CEA on GitHub under
    Apache-2.0 as of December 2025, a permissively licensed shared core can do
    propellant thermochemistry without inheriting GPL from RocketCEA. This postdates the
    survey's research and is worth an explicit note in §4.
 
-4. **The RASAero replication roadmap gains two concrete assets.** PDAS ships
+4. **The RASAero replication roadmap gains a concrete asset.** PDAS ships
    public-domain source for the Mark IV HABP local-inclination methods the roadmap
-   names — the roadmap currently cites it only as a reference list. And Sooy & Schmidt
-   (2005) is a published open benchmark for engineering-method accuracy across exactly
-   the Mach range in question, **already implemented as regression cases in MAPLEAF** —
-   which, now that MAPLEAF is vendored, ships its digitized AP98, DATCOM-97, wind-tunnel,
-   and CFD reference curves directly in this repository. That combination converts
-   "replicate from documented methods and validate" from a plan into a set of runnable
-   comparisons, and the survey's roadmap now says so.
+   names — the roadmap previously cited it only as a reference list. Sooy & Schmidt
+   (2005) remains the published open benchmark for engineering-method accuracy across
+   exactly the Mach range in question; the survey's roadmap now cites it directly and
+   records where a runnable implementation of those cases already exists.
 
 5. **Unlicensed team software is a systemic ecosystem problem.** Four projects in this
    catalog — two of them substantial — have no license file. This belongs in the
@@ -263,102 +243,96 @@ All URLs accessed 2026-08-24. Repository metadata from the GitHub REST API, same
 
 ### Flight simulators
 
-1. Stoldt, H., Quinn, D., Kavanagh, J., & Johansen, C. (2021). "MAPLEAF: A Compact,
-   Extensible, Open-Source, 6-Degrees-of-Freedom Rocket Flight Simulation Framework."
-   AIAA 2021-3267, *AIAA Propulsion and Energy 2021 Forum*.
-   DOI: [10.2514/6.2021-3267](https://arc.aiaa.org/doi/10.2514/6.2021-3267) ·
-   Source: <https://github.com/henrystoldt/MAPLEAF> ·
-   Docs: <https://henrystoldt.github.io/MAPLEAF/>
-2. Interstellar Technologies. *OpenTsiolkovsky* [software]. MIT.
+1. Interstellar Technologies. *OpenTsiolkovsky* [software]. MIT.
    <https://github.com/istellartech/OpenTsiolkovsky>
-3. *ForRocket* [software]. MIT. <https://github.com/sus304/ForRocket>
-4. Doddanavar, R. *hpr-sim* [software]. GPL-3.0.
+2. *ForRocket* [software]. MIT. <https://github.com/sus304/ForRocket>
+3. Doddanavar, R. *hpr-sim* [software]. GPL-3.0.
    <https://github.com/rdoddanavar/hpr-sim>
-5. di Pasquo, G. *AeroVECTOR* [software]. GPL-3.0.
+4. di Pasquo, G. *AeroVECTOR* [software]. GPL-3.0.
    <https://github.com/GuidodiPasquo/AeroVECTOR>
-6. *FARS — Failure-Aware Rocket Simulator* [software]. GPL-3.0.
+5. *FARS — Failure-Aware Rocket Simulator* [software]. GPL-3.0.
    <https://github.com/Tuzcuberat1/failure-aware-rocket-simulator>
-7. Berndt, J. S. (2004). "JSBSim: An Open Source Flight Dynamics Model in C++."
+6. Berndt, J. S. (2004). "JSBSim: An Open Source Flight Dynamics Model in C++."
    AIAA 2004-4923. DOI: [10.2514/6.2004-4923](https://arc.aiaa.org/doi/10.2514/6.2004-4923) ·
    <https://github.com/JSBSim-Team/jsbsim>
-8. Illinois Space Society. *ISS_SILSIM* [software]. No license.
+7. Illinois Space Society. *ISS_SILSIM* [software]. No license.
    <https://github.com/ISSUIUC/ISS_SILSIM> · CalSTAR. *SIL* [software]. No license.
    <https://github.com/calstar/SIL>
 
 ### Aerodynamic methods and codes
 
-9. Sooy, T. J., & Schmidt, R. Z. (2005). "Aerodynamic Predictions, Comparisons, and
+8. Sooy, T. J., & Schmidt, R. Z. (2005). "Aerodynamic Predictions, Comparisons, and
    Validations Using Missile DATCOM (97) and Aeroprediction 98 (AP98)." *Journal of
    Spacecraft and Rockets*, 42(2), 257–265.
    DOI: [10.2514/1.7814](https://arc.aiaa.org/doi/10.2514/1.7814)
-10. Public Domain Aeronautical Software. <https://www.pdas.com/> — Hypersonic Arbitrary
+9. Public Domain Aeronautical Software. <https://www.pdas.com/> — Hypersonic Arbitrary
     Body Program: <https://www.pdas.com/hyper.html> · PANAIR:
     <https://www.pdas.com/panair.html>
-11. Open Aerospace. *barrowman* [software]. GPL-3.0.
+10. Open Aerospace. *barrowman* [software]. GPL-3.0.
     <https://github.com/open-aerospace/barrowman> ·
     Docs: <https://open-aerospace.github.io/barrowman/>
-12. *python-datcom* [software]. No license file.
+11. *python-datcom* [software]. No license file.
     <https://github.com/danielenriquez59/python-datcom>
-13. NASA. *OpenVSP* [software]. NASA Open Source Agreement 1.3.
+12. NASA. *OpenVSP* [software]. NASA Open Source Agreement 1.3.
     <https://github.com/OpenVSP/OpenVSP>
-14. SU2 Foundation. *SU2* [software]. LGPL-2.1. <https://github.com/su2code/SU2>
-15. *OpenFOAM ToolChain for Rocket Aerodynamic Analysis* [software], TU München. No
+13. SU2 Foundation. *SU2* [software]. LGPL-2.1. <https://github.com/su2code/SU2>
+14. *OpenFOAM ToolChain for Rocket Aerodynamic Analysis* [software], TU München. No
     license stated.
     <https://github.com/WyllDuck/OpenFOAM-ToolChain-for-Rocket-Aerodynamic-Analysis>
 
 ### Propulsion
 
-16. NASA. *CEA — Chemical Equilibrium with Applications* [software]. Apache-2.0.
+15. NASA. *CEA — Chemical Equilibrium with Applications* [software]. Apache-2.0.
     <https://github.com/nasa/cea>
-17. Brown, C. *RocketCEA* [software]. GPL-3.0. <https://rocketcea.readthedocs.io/>
-18. Cantera Developers. *Cantera* [software]. BSD-3-Clause. <https://cantera.org/>
-19. Bell, I. H., et al. *CoolProp* [software]. MIT. <http://www.coolprop.org/>
-20. Reilley, A. *openMotor* [software]. GPL-3.0.
+16. Brown, C. *RocketCEA* [software]. GPL-3.0. <https://rocketcea.readthedocs.io/>
+17. Cantera Developers. *Cantera* [software]. BSD-3-Clause. <https://cantera.org/>
+18. Bell, I. H., et al. *CoolProp* [software]. MIT. <http://www.coolprop.org/>
+19. Reilley, A. *openMotor* [software]. GPL-3.0.
     <https://github.com/reilleya/openMotor>
-21. Nickel, R. *HRAP — Hybrid Rocket Analysis Program* [software]. GPL-3.0.
+20. Nickel, R. *HRAP — Hybrid Rocket Analysis Program* [software]. GPL-3.0.
     <https://github.com/rnickel1/HRAP_Source>
-22. Cambridge University Spaceflight. *bamboo* [software]. AGPL-3.0.
+21. Cambridge University Spaceflight. *bamboo* [software]. AGPL-3.0.
     <https://github.com/cuspaceflight/bamboo>
 
 ### Environment
 
-23. Dettmann, A. *Ambiance* [software]. Apache-2.0.
+22. Dettmann, A. *Ambiance* [software]. Apache-2.0.
     <https://github.com/airinnova/ambiance>
-24. Lucas, G., et al. *pymsis* [software]. MIT. <https://github.com/SWxTREC/pymsis>
-25. Bell, C. *fluids* [software] — `fluids.atmosphere` (NRLMSISE-00, HWM93/HWM14). MIT.
+23. Lucas, G., et al. *pymsis* [software]. MIT. <https://github.com/SWxTREC/pymsis>
+24. Bell, C. *fluids* [software] — `fluids.atmosphere` (NRLMSISE-00, HWM93/HWM14). MIT.
     <https://github.com/CalebBell/fluids>
-26. Bender, S. *pynrlmsise00* [software]. GPL-2.0.
+25. Bender, S. *pynrlmsise00* [software]. GPL-2.0.
     <https://github.com/st-bender/pynrlmsise00>
-27. *ATMOS / pyatmos* [software]. MIT. <https://github.com/lcx366/ATMOS>
-28. May, R. M., et al. (2022). "MetPy: A Meteorological Python Library for Data Analysis
+26. *ATMOS / pyatmos* [software]. MIT. <https://github.com/lcx366/ATMOS>
+27. May, R. M., et al. (2022). "MetPy: A Meteorological Python Library for Data Analysis
     and Visualization." *BAMS*, 103(10). <https://unidata.github.io/MetPy/> ·
     Siphon: <https://github.com/Unidata/siphon>
-29. Gillett, K. *SounderPy* [software]. MIT.
+28. Gillett, K. *SounderPy* [software]. MIT.
     <https://github.com/kylejgillett/sounderpy>
-30. Blaylock, B. *Herbie* [software]. MIT. <https://github.com/blaylockbk/Herbie>
-31. *pyproj* [software]. MIT. <https://pyproj4.github.io/pyproj/> ·
+29. Blaylock, B. *Herbie* [software]. MIT. <https://github.com/blaylockbk/Herbie>
+30. *pyproj* [software]. MIT. <https://pyproj4.github.io/pyproj/> ·
     Karney, C. F. F. *GeographicLib*. MIT. <https://geographiclib.sourceforge.io/>
 
 ### Interchange and data
 
-32. Coker, J. *ThrustCurve* [software and data]. ISC.
+31. Coker, J. *ThrustCurve* [software and data]. ISC.
     <https://www.thrustcurve.org/> · <https://github.com/JohnCoker/thrustcurve3>
-33. *thrustcurve-db* [software/data]. ISC.
+32. *thrustcurve-db* [software/data]. ISC.
     <https://github.com/broofa/thrustcurve-db>
-34. OpenRocket project. *motor-database* [data]. GPL-3.0.
+33. OpenRocket project. *motor-database* [data]. GPL-3.0.
     <https://github.com/openrocket/motor-database>
-35. *rasp-parser* [software]. MIT. <https://github.com/gituser12981u2/rasp-parser>
-36. *openrocket-python-parser* [software]. MIT.
+34. *rasp-parser* [software]. MIT. <https://github.com/gituser12981u2/rasp-parser>
+35. *openrocket-python-parser* [software]. MIT.
     <https://github.com/AIAA-UTD-Comet-Rocketry/openrocket-python-parser>
-37. *Fin-Flutter-Velocity-Calculator* [software]. BSD-2-Clause.
+36. *Fin-Flutter-Velocity-Calculator* [software]. BSD-2-Clause.
     <https://github.com/jkb-git/Fin-Flutter-Velocity-Calculator>
-38. Skyward Experimental Rocketry. *datcom-parser* [software].
+37. Skyward Experimental Rocketry. *datcom-parser* [software].
     <https://github.com/skyward-er/datcom-parser>
 
 ### Commercial and closed tools
 
-39. Apogee Components. *RockSim*. <https://www.apogeerockets.com/Rocket_Software/RockSim>
-40. *SpaceCAD*. <https://www.spacecad.com/>
-41. AeroRocket (J. Cipolla). *AeroCFD, AeroDRAG, AeroCP, VisualCFD*.
+38. Apogee Components. *RockSim*. <https://www.apogeerockets.com/Rocket_Software/RockSim>
+39. *SpaceCAD*. <https://www.spacecad.com/>
+40. AeroRocket (J. Cipolla). *AeroCFD, AeroDRAG, AeroCP, VisualCFD*.
     <http://www.aerorocket.com/>
-42. *Aerolab* — zero-α drag/lift/stability estimation, Mach 0–8. Freeware, closed.
+41. *Aerolab* — zero-α drag/lift/stability estimation, Mach 0–8. Freeware, closed.
