@@ -160,14 +160,14 @@ weather sources RocketPy fetches, as a decoupled optional layer — which is pre
 ### §6 Events, recovery, and control
 
 No general-purpose library exists for rocket recovery-event logic; it is inherently
-part of the simulation core. What the ecosystem does supply is **prior art on the
-software-in-the-loop boundary**: AeroVECTOR's serial bridge to an Arduino-class flight
-computer (§1.1), RocketPy's noisy-sensor trigger callbacks, and OpenRocket's
-`SimulationListener` family — with FARS as evidence the listener interface is
-expressive enough for third parties to build on without forking. For structural limits
-adjacent to recovery, [Fin-Flutter-Velocity-Calculator](https://github.com/jkb-git/Fin-Flutter-Velocity-Calculator)
-(BSD-2-Clause, active 2026-01-09) implements the standard flutter-velocity criterion as
-a small, cleanly licensed component.
+part of the simulation core.
+
+| Component | Type | License | Status | Assessment |
+|---|---|---|---|---|
+| OpenRocket `SimulationListener` family | Prior art (in-package API) | GPL-3.0 | Active | The mechanism the survey's §6 proposes generalizing. FARS (§1.1) is third-party evidence it is expressive enough to build on without forking. Already vendored at [`subs/openrocket`](../../subs/CLAUDE-openrocket.md); keep the existing primer link. |
+| RocketPy parachute trigger callbacks | Prior art (in-package API) | **MIT** | Active | User trigger functions receiving noisy, lagged simulated sensor data — real altimeter logic flown in simulation. The most advanced form of §6's trigger requirement among the surveyed packages. Already vendored at [`subs/rocketpy`](../../subs/CLAUDE-rocketpy.md); keep the existing primer link. |
+| AeroVECTOR SIL serial bridge | Prior art | GPL-3.0 | Dormant — `master` 2023-07-12 | Swaps simulated sensor reads and servo commands over serial to an Arduino-class flight computer, with a documented 5 ms budget. A concrete answer to "where does the core end and the flight computer begin." |
+| [Fin-Flutter-Velocity-Calculator](https://github.com/jkb-git/Fin-Flutter-Velocity-Calculator) | Supporting lib | **BSD-2-Clause** | Active — `main` 2026-01-09, 12 stars | The standard flutter-velocity criterion as a small, cleanly licensed component — the structural limit adjacent to recovery, and one of the few genuinely drop-in pieces in this catalog. |
 
 ### §8 Inputs, outputs, and interchange
 
