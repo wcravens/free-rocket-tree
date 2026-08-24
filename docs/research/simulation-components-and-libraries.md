@@ -1,7 +1,7 @@
 # Simulation Components and Subcomponent Libraries
 
 A companion catalog to *[Rocket Simulation Software: Models, Inputs, and
-Portability](rocket-flight-simulation-designs.md)*. That report surveys five complete
+Portability](rocket-flight-simulation-designs.md)*. That report surveys eight complete
 flight-simulation **packages** in depth. This one covers everything around them:
 
 1. **Flight simulators the survey does not cover** — open-source 6-DOF cores that are
@@ -18,73 +18,46 @@ equations, the US Standard Atmosphere, NRLMSISE-00, and chemical-equilibrium sol
 all solved problems with maintained implementations. Knowing which are solid, which are
 abandoned, and which are unusable on license grounds is a prerequisite for that.
 
-*Research date: 2026-08-24. Repository metadata — license, last push, star count,
-archive status — was read from the GitHub API on that date and is stated exactly as
-reported. Capability descriptions come from project READMEs and documentation and are
-**not** verified against source, with one exception: MAPLEAF's models were checked
-against its `SimDefinitionTemplate.mapleaf` and repository tree. Nothing in this
-catalog is vendored under [`subs/`](../../subs/CLAUDE.md); treat every capability claim
-here as weaker evidence than the corresponding claims in the five-package survey.*
+*Research date: 2026-08-24. Repository metadata — license, star count, archive status —
+was read from the GitHub API on that date. **Dates are default-branch commit dates, not
+the API's `pushed_at` field.** That distinction was not made in this catalog's first pass
+and it mattered: `pushed_at` reports activity on *any* branch, and for three projects here
+it overstated currency by a year or more — ForRocket by six years. Capability descriptions
+come from project READMEs and documentation and are **not** verified against source.
+Except where a row says otherwise, nothing in this catalog is vendored under
+[`subs/`](../../subs/CLAUDE.md); treat every capability claim here as weaker evidence than
+the corresponding claims in the eight-package survey.*
 
 ---
 
 ## Part 1 — Flight simulators not in the survey
 
-### 1.1 MAPLEAF — the most significant omission
+### 1.1 MAPLEAF — promoted into the survey
 
-**[MAPLEAF](https://github.com/henrystoldt/MAPLEAF)** (University of Calgary; Stoldt,
-Quinn, Kavanagh & Johansen) is a 6-DOF rocket flight simulation framework in Python.
-**MIT licensed. 72 stars. Last push 2023-12-27.** Published as AIAA 2021-3267.
+MAPLEAF was catalogued here in the first pass and has since been **promoted into the main
+survey**, where it is now [§6](rocket-flight-simulation-designs.md#6-mapleaf) with the same
+full treatment the other packages receive. It is a complete flight-simulation package, not a
+component, and it is vendored and pinned at
+[`subs/mapleaf`](../../subs/CLAUDE-mapleaf.md) so its claims are checkable against source —
+the standard this catalog explicitly does not meet.
 
-It belongs in the survey proper, because it is the closest existing thing to the
-"common simulation core" the survey sketches — and it is permissively licensed, which
-neither OpenRocket nor CamRocSim is. Checked against its simulation-definition
-template, it already provides:
-
-| Core-spec feature | What MAPLEAF has |
-|---|---|
-| §1 Flight dynamics | 6-DOF rigid body, quaternion attitude (Cython), staging with dropped-stage drop-path simulation, recovery systems |
-| §2 Integration | Selectable `Euler`, `RK2Midpoint`, `RK2Heun`, `RK4`, and adaptive `RK12`/`RK23`/`RK45`/`RK78`, with target-error step control; adaptive stepping is overridden near detected events |
-| §3 Aerodynamics | Barrowman-derived component build-up (nose cone, body tube, boat tail, fins; surface-roughness table cited to Barrowman 1967 Table 4-1), **plus** a tabulated provider (interpolating on Mach / Altitude / unit-Reynolds / AOA / roll angle) **plus** an expression-based provider — i.e. the pluggable-provider interface the survey asks for, already built |
-| §5 Environment | `EarthModel` = `None` / `Flat` / `Round` (rotating, inverse-square) / `WGS84` (rotating ellipsoid, J2), with the integration frame changing accordingly; US Standard Atmosphere, constant, or tabulated; mean wind from constant, **wind-rose sampling**, or **radiosonde data**; seeded pink-noise turbulence |
-| §6 Events and control | Event detector; PID control systems with **gain scheduling on Mach / altitude / Reynolds / AOA / roll angle**, actuator models, canard deflection tables, fixed-rate controller updates |
-| §7 Stochastic | Monte Carlo by appending `_stdDev` to *any* scalar or vector parameter, seeded for repeatability; landing-location / apogee / max-speed dispersion outputs; Ray-based parallelism |
-| §8 Inputs | A single declarative `.mapleaf` text schema driving the whole run — the role CamRocSim's `SimulationInput.xml` plays |
-| §9 Library | pip-installable, usable as both a CLI (`mapleaf`) and a Python library |
-
-Two things set it apart even from RocketPy. First, **design optimization is built in**:
-particle-swarm (pyswarms) and `scipy.optimize.minimize` drivers, with arbitrarily nested
-inner optimization loops. Second, **the V&V suite is a first-class artifact**. Its batch
-case sets include `NASAVerificationCases`, `OpenRocketCases`, `SparrowCases`,
-`StaticStabilityCases`, `ParametricFinBodyCases`, and — most interesting for this
-consortium — **`SooyAP98DC97Cases`**, replicating the configurations from Sooy &
-Schmidt's *Aerodynamic Predictions, Comparisons, and Validations Using Missile DATCOM
-(97) and Aeroprediction 98* (JSR, 2005). That paper is a published, open benchmark set
-for exactly the wide-Mach engineering-method regime the survey identifies as the
-RASAero-shaped hole. MAPLEAF has already wired those cases up as regression tests.
-
-**What it lacks** relative to the survey's core spec: no real-weather ingestion (no
-forecast, reanalysis, or ensemble sources), no `.ork` / `.rkt` / `.CDX1` import, no
-wide-Mach built-in aerodynamics (its geometry-based provider is Barrowman-class), no
-variable-mass tank models for liquids/hybrids, and no aerodynamic heating.
-
-**The catch is maintenance.** No pushes since December 2023, and the package targets
-Python 3.6+ with Cython-compiled extensions. *Unverified: whether it builds and installs
-cleanly on a current Python.* Confirming that is the first thing worth doing, because if
-it does, MAPLEAF is the strongest fork-or-revive candidate in the ecosystem — an
-MIT-licensed core that already implements most of §1–§9.
+Read the survey section rather than a summary here. Two of the claims originally made in this
+catalog did not survive verification against the pinned tree and are corrected there: its
+expression-defined aerodynamic provider is **declared but unimplemented**, and its status is
+best described by its **default branch** (`master`, 2021-12-11) rather than the later push date
+reported below for other projects.
 
 ### 1.2 Other open-source flight simulators
 
-| Project | License | Language | Last push | Stars | What it is |
+| Project | License | Language | Default branch | Stars | What it is |
 |---|---|---|---|---|---|
-| [OpenTsiolkovsky](https://github.com/istellartech/OpenTsiolkovsky) | MIT | Rust (+ legacy C++, TS/WASM web UI) | 2025-09-28 | 120 | Launch-vehicle trajectory simulator from Interstellar Technologies (a Japanese launch company). 3-DOF and 6-DOF, up to three stages, TVC attitude control, sub-orbital and LEO insertion. JSON input, CSV/JSON output, CLI plus a browser front end. Aerodynamics supplied as tables. |
-| [ForRocket](https://github.com/sus304/ForRocket) | MIT | C++ | 2026-07-08 | 48 | "Only a trajectory solver," by explicit design — the same core-not-application thesis the survey argues for. 6-DOF, engine-type agnostic (solid/liquid/hybrid), staged event sequencing (cutoff, separation, despin, jettison), controlled-flight support. JSON in, CSV out. Built on Boost/Eigen/nlohmann-json/GoogleTest. |
-| [hpr-sim](https://github.com/rdoddanavar/hpr-sim) | GPL-3.0 | C++ core + Python | 2026-07-25 | 9 | An independent attempt at precisely the architecture §9 recommends: C++ numerics behind PyBind11 Python bindings, YAML declarative input, RASP `.eng` motors, Monte Carlo, multicore, geodetic and wind-turbulence environment models. Self-described as **not yet in a release state**. |
-| [AeroVECTOR](https://github.com/GuidodiPasquo/AeroVECTOR) | GPL-3.0 | Python | 2023-07-12 | 185 | **3-DOF**, aimed squarely at active control: TVC, active fin control, and parachute-deployment algorithms, with non-linear actuator dynamics and **software-in-the-loop over serial to an Arduino-class flight computer**. Aerodynamics use OpenRocket's extended Barrowman plus modifications, with fin forces from interpolated wind-tunnel data and **Diederich's semi-empirical method**. |
-| [FARS / failure-aware-rocket-simulator](https://github.com/Tuzcuberat1/failure-aware-rocket-simulator) | GPL-3.0 | Java | 2026-08-09 | 5 | Brand new. Does not reimplement physics — it wraps OpenRocket with custom `SimulationListener`s to **inject failures** (ignition failure, early burnout, thrust degradation, recovery-deployment failure, avionics blockage, structural failure) and runs Monte Carlo reliability analysis over real OpenRocket runs. Interesting mainly as a working demonstration that OpenRocket's listener API is a sufficient extension point (survey §6). |
-| [rocket-sim](https://github.com/ZenAlexa/rocket-sim) | MIT | Rust | 2026-02-07 | 3 | 6-DOF multi-stage with TVC, gravity-turn guidance, RK4 at 200 Hz, plus an orbital-mechanics toolkit. Created February 2026. Too new and too small to lean on; noted because it is a concrete instance of the from-scratch duplication the consortium README is a response to. |
-| [JSBSim](https://github.com/JSBSim-Team/jsbsim) | LGPL-2.1 | C++ | 2026-08-23 | 2211 | Not rocketry-specific, but the most relevant architectural precedent in the catalog: a mature, heavily used, **XML-schema-driven** flight dynamics model with a C++ core and Python/other bindings — twenty-plus years of evidence that the survey's §8/§9 "declarative schema + embeddable core + bindings" shape is sustainable. Has been used for launch-vehicle ascent studies. Requires supplied coefficient tables; no geometry-based rocket aero. |
+| [OpenTsiolkovsky](https://github.com/istellartech/OpenTsiolkovsky) | MIT | Rust (+ legacy C++, TS/WASM web UI) | `master` 2025-09-28 | 120 | **Now vendored and profiled in the survey ([§7](rocket-flight-simulation-designs.md#7-other-open-cores-forrocket-and-opentsiolkovsky)).** Launch-vehicle trajectory simulator from Interstellar Technologies (a Japanese launch company). Up to three stages, sub-orbital and LEO insertion, JSON input, CSV/JSON output, CLI plus a browser front end, aerodynamics supplied as tables. Note the correction made there against source: the **Rust solver is 3-DOF with prescribed attitude**; the advertised 6-DOF/TVC lives in the legacy C++ tree. |
+| [ForRocket](https://github.com/sus304/ForRocket) | MIT | C++ | **`master` 2020-04-11** | 48 | **Now vendored and profiled in the survey ([§7](rocket-flight-simulation-designs.md#7-other-open-cores-forrocket-and-opentsiolkovsky)).** "Only a trajectory solver," by explicit design — the same core-not-application thesis the survey argues for. 6-DOF, engine-type agnostic (solid/liquid/hybrid), staged event sequencing (cutoff, separation, despin, jettison), controlled-flight support. JSON in, CSV out, built on Boost/Eigen/nlohmann-json/GoogleTest. **Its 2026-07-08 push date is on the unmerged `dev_minor-update` branch; `develop` is at 2025-04-28. `master` has been static since April 2020.** |
+| [hpr-sim](https://github.com/rdoddanavar/hpr-sim) | GPL-3.0 | C++ core + Python | `master` 2025-05-16 | 9 | An independent attempt at precisely the architecture §9 recommends: C++ numerics behind PyBind11 Python bindings, YAML declarative input, RASP `.eng` motors, Monte Carlo, multicore, geodetic and wind-turbulence environment models. Self-described as **not yet in a release state**. |
+| [AeroVECTOR](https://github.com/GuidodiPasquo/AeroVECTOR) | GPL-3.0 | Python | `master` 2023-07-12 | 185 | **3-DOF**, aimed squarely at active control: TVC, active fin control, and parachute-deployment algorithms, with non-linear actuator dynamics and **software-in-the-loop over serial to an Arduino-class flight computer**. Aerodynamics use OpenRocket's extended Barrowman plus modifications, with fin forces from interpolated wind-tunnel data and **Diederich's semi-empirical method**. |
+| [FARS / failure-aware-rocket-simulator](https://github.com/Tuzcuberat1/failure-aware-rocket-simulator) | GPL-3.0 | Java | `main` 2026-08-09 | 5 | Brand new. Does not reimplement physics — it wraps OpenRocket with custom `SimulationListener`s to **inject failures** (ignition failure, early burnout, thrust degradation, recovery-deployment failure, avionics blockage, structural failure) and runs Monte Carlo reliability analysis over real OpenRocket runs. Interesting mainly as a working demonstration that OpenRocket's listener API is a sufficient extension point (survey §6). |
+| [rocket-sim](https://github.com/ZenAlexa/rocket-sim) | MIT | Rust | `master` 2026-02-07 | 3 | 6-DOF multi-stage with TVC, gravity-turn guidance, RK4 at 200 Hz, plus an orbital-mechanics toolkit. Created February 2026. Too new and too small to lean on; noted because it is a concrete instance of the from-scratch duplication the consortium README is a response to. |
+| [JSBSim](https://github.com/JSBSim-Team/jsbsim) | LGPL-2.1 | C++ | `master` 2026-08-03 | 2211 | Not rocketry-specific, but the most relevant architectural precedent in the catalog: a mature, heavily used, **XML-schema-driven** flight dynamics model with a C++ core and Python/other bindings — twenty-plus years of evidence that the survey's §8/§9 "declarative schema + embeddable core + bindings" shape is sustainable. Has been used for launch-vehicle ascent studies. Requires supplied coefficient tables; no geometry-based rocket aero. |
 
 Also encountered and **not** recommended as dependencies, for a reason worth recording
 as a pattern: student-team software-in-the-loop simulators —
@@ -138,7 +111,6 @@ usable code.
 | [open-aerospace/barrowman](https://github.com/open-aerospace/barrowman) | GPL-3.0 | **Dormant** — last push 2016-04-11, 11 stars, 27 commits | The only standalone library named after the method. Pure-Python implementation of the original Barrowman method for slender finned vehicles. README is largely a TODO. Not a credible dependency; useful as a compact reference reading of the equations. |
 | OpenRocket's `AerodynamicCalculator` | GPL-3.0 | Active | The best-validated open extended-Barrowman implementation there is — body lift, arbitrary fin planforms, fin–body interference, pitch/roll damping, canted fins. Already vendored at [`subs/openrocket`](../../subs/CLAUDE-openrocket.md). Extractable only into GPL-compatible work. |
 | RocketPy's `AeroSurface` classes | **MIT** | Active | Barrowman lift for nose cones, fins, and tails, plus user drag curves. Already vendored at [`subs/rocketpy`](../../subs/CLAUDE-rocketpy.md). The permissively licensed Barrowman implementation the ecosystem actually has. |
-| MAPLEAF's `AeroFunctions` / `Fins` | **MIT** | Dormant (see §1.1) | Barrowman-class build-up behind a provider interface, with the tabulated and expression providers alongside it. |
 | AeroVECTOR's fin model | GPL-3.0 | Dormant | Notable for **Diederich's semi-empirical fin method** and interpolated wind-tunnel fin data — a specific subcomponent absent from the survey's five. |
 | [python-datcom](https://github.com/danielenriquez59/python-datcom) | **None** — no LICENSE file, despite a README claim of public domain | Created 2025-10-14, 4 commits, 43 stars | A modernizing translation of **USAF Digital DATCOM** (the aircraft code, not Missile DATCOM) into Python — state dicts replacing COMMON blocks, type hints, NumPy. Exactly the shape of thing the survey's replication roadmap wants, and currently unusable: no license, no releases, no validation results. Worth watching, and worth asking the author to add a license. |
 | USAF **Digital DATCOM** (original FORTRAN) | Public domain | Static | The genuinely public-domain aircraft code. Distinct from **Missile DATCOM**, whose *documentation* is public on DTIC but whose *code* is export-controlled — the distinction the survey already draws. |
@@ -223,8 +195,10 @@ RocketPy's MIT Barrowman surfaces.
 
 **Mine, fork, or evaluate** — real value, but with a condition attached:
 
-- **MAPLEAF** — MIT and architecturally closest to the target; blocked on whether a
-  2023-era Python/Cython package still builds. Highest-value thing to check next.
+- **MAPLEAF** — MIT and architecturally closest to the target. **Now promoted into the
+  survey (§6) and vendored**; the open question is unchanged and still the highest-value
+  thing to check next: whether a **2021**-era Python/Cython package with a hard
+  `matplotlib==3.2.2` pin still builds on a current interpreter.
 - **openMotor** — active and community-standard, but its usability as a *library*
   rather than an application is unverified.
 - **HRAP** — the credible open hybrid-motor model; GPL-3.0.
@@ -247,10 +221,13 @@ RocketPy's MIT Barrowman surfaces.
 
 ## Part 4 — What this changes in the survey
 
-1. **The survey's package list has a real omission.** MAPLEAF meets the survey's
-   inclusion bar — 6-DOF, published, open — and is the only permissively licensed core
-   besides RocketPy. It deserves a full section, vendored under `subs/` like the
-   others, with its claims checked against source rather than against its docs.
+1. **The survey's package list had a real omission — now closed.** MAPLEAF met the
+   survey's inclusion bar (6-DOF, published, open) and has since been given a full
+   section there (§6) and vendored at `subs/mapleaf`, with its claims re-checked against
+   source. ForRocket and OpenTsiolkovsky were vendored alongside it and profiled compactly
+   (§7). Re-verification changed two things this catalog had asserted from documentation:
+   MAPLEAF's expression-defined aero provider is **unimplemented**, and OpenTsiolkovsky's
+   **live Rust solver is 3-DOF**, not the 6-DOF its README advertises.
 
 2. **"Permissive core" is no longer a set of one.** The survey's conclusion that
    RocketPy's MIT license is why it embeds everywhere still holds, but MAPLEAF (MIT),
@@ -266,9 +243,11 @@ RocketPy's MIT Barrowman surfaces.
    public-domain source for the Mark IV HABP local-inclination methods the roadmap
    names — the roadmap currently cites it only as a reference list. And Sooy & Schmidt
    (2005) is a published open benchmark for engineering-method accuracy across exactly
-   the Mach range in question, **already implemented as regression cases in MAPLEAF**.
-   That combination converts "replicate from documented methods and validate" from a
-   plan into a set of runnable comparisons.
+   the Mach range in question, **already implemented as regression cases in MAPLEAF** —
+   which, now that MAPLEAF is vendored, ships its digitized AP98, DATCOM-97, wind-tunnel,
+   and CFD reference curves directly in this repository. That combination converts
+   "replicate from documented methods and validate" from a plan into a set of runnable
+   comparisons, and the survey's roadmap now says so.
 
 5. **Unlicensed team software is a systemic ecosystem problem.** Four projects in this
    catalog — two of them substantial — have no license file. This belongs in the

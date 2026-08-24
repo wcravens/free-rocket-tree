@@ -1088,10 +1088,14 @@ All URLs accessed 2026-08-22.
 
 ### Vendored source
 
-Four of the five packages are pinned as submodules under `subs/`, each with an
+Seven of the eight packages are pinned as submodules under `subs/`, each with an
 agent-facing primer; claims in this report about their internals were checked against
 these exact trees. See [`subs/CLAUDE.md`](../../subs/CLAUDE.md) for the set, and
 [`docs/ref/`](../ref/README.md) for local copies of the papers cited below.
+
+Every pin is the tip of the project's **default branch**. Where that differs materially
+from the repository's "last push" date — which reflects activity on any branch — the
+default-branch date is the one recorded here and used throughout this report.
 
 | Package | Path | Pinned commit |
 |---|---|---|
@@ -1099,6 +1103,9 @@ these exact trees. See [`subs/CLAUDE.md`](../../subs/CLAUDE.md) for the set, and
 | RocketPy | [`subs/rocketpy`](../../subs/CLAUDE-rocketpy.md) | `9bd6ad3` (tag `v1.13.0`) |
 | CamRocSim | [`subs/camrocsim`](../../subs/CLAUDE-camrocsim.md) | `8191db9` (2017-01-13) |
 | CamPyRoS | [`subs/campyros`](../../subs/CLAUDE-campyros.md) | `1dba140` (2021-04-30) |
+| MAPLEAF | [`subs/mapleaf`](../../subs/CLAUDE-mapleaf.md) | `af970d3` (2021-12-11, tip of `master`) |
+| ForRocket | [`subs/forrocket`](../../subs/CLAUDE-forrocket.md) | `10fdcd0` (2020-04-11, tip of `master`) |
+| OpenTsiolkovsky | [`subs/opentsiolkovsky`](../../subs/CLAUDE-opentsiolkovsky.md) | `a699805` (2025-09-28, tip of `master`) |
 
 ### Peer-reviewed publications
 
@@ -1121,80 +1128,104 @@ these exact trees. See [`subs/CLAUDE.md`](../../subs/CLAUDE.md) for the set, and
 6. Box, S., Bishop, C. M., & Hunt, H. (2009). *Estimating the dynamic and aerodynamic
    parameters of passively controlled high power rockets for flight simulation*.
    Technical report. <https://cambridgerocket.sourceforge.net/AerodynamicCoefficients.pdf>
+7. Stoldt, H., Quinn, M., Kavanagh, K., & Johansen, C. (2021). "MAPLEAF: Modular
+   Aerospace Prediction Lab for Engines and Aero Forces." *AIAA Propulsion and Energy
+   2021 Forum*, AIAA 2021-3267.
+   DOI: [10.2514/6.2021-3267](https://doi.org/10.2514/6.2021-3267)
 
 ### Software, documentation, and project sites
 
 **OpenRocket**
 
-7. OpenRocket project. *OpenRocket* [software], version 24.12. GNU GPL v3.
+8. OpenRocket project. *OpenRocket* [software], version 24.12. GNU GPL v3.
    <https://openrocket.info/> · Source: <https://github.com/openrocket/openrocket>
-8. OpenRocket project. *OpenRocket Documentation* (Sphinx site): features, advanced
+9. OpenRocket project. *OpenRocket Documentation* (Sphinx site): features, advanced
    flight simulation, simulation extensions.
    <https://openrocket.readthedocs.io/en/latest/>
-9. OpenRocket project. "Using OpenRocket Core in External Applications."
+10. OpenRocket project. "Using OpenRocket Core in External Applications."
    *OpenRocket Development Guide*.
    <https://openrocket.readthedocs.io/en/latest/dev_guide/using_openrocket_core.html>
-10. OpenRocket project. "OpenRocket File Format Specification."
+11. OpenRocket project. "OpenRocket File Format Specification."
     *OpenRocket Development Guide*.
     <https://openrocket.readthedocs.io/en/latest/dev_guide/file_specification.html>
-11. OpenRocket project. `info.openrocket:core` [Maven Central artifact], version 24.12.
+12. OpenRocket project. `info.openrocket:core` [Maven Central artifact], version 24.12.
     <https://central.sonatype.com/artifact/info.openrocket/core>
-12. SilentSys. *orhelper* [software]: Python bridge to OpenRocket via JPype.
+13. SilentSys. *orhelper* [software]: Python bridge to OpenRocket via JPype.
     <https://github.com/SilentSys/orhelper>
 
 **RASAero II**
 
-13. Rogers, C. E., & Cooper, D. (2019). *RASAero II* [software], version 1.0.2.0.
+14. Rogers, C. E., & Cooper, D. (2019). *RASAero II* [software], version 1.0.2.0.
     Rogers Aeroscience. Freeware. <https://rasaero.com/>
-14. Rogers, C. E., & Cooper, D. *RASAero II Users Manual*, version 1.0.2.0.
+15. Rogers, C. E., & Cooper, D. *RASAero II Users Manual*, version 1.0.2.0.
     Rogers Aeroscience.
     <https://rasaero.com/dloads/RASAero%20II%20Users%20Manual.pdf>
-15. Leeds University Rocketry. *pyrasaero* [software]: GUI automation for batch
+16. Leeds University Rocketry. *pyrasaero* [software]: GUI automation for batch
     RASAero II runs. <https://github.com/leedsrocketry/pyrasaero>
 
 **RocketPy**
 
-16. RocketPy Team. *RocketPy* [software], version 1.13.0. MIT License.
+17. RocketPy Team. *RocketPy* [software], version 1.13.0. MIT License.
     <https://github.com/RocketPy-Team/RocketPy> ·
     PyPI: <https://pypi.org/project/rocketpy/>
-17. RocketPy Team. *RocketPy Documentation*: class references (Environment, Motor,
+18. RocketPy Team. *RocketPy Documentation*: class references (Environment, Motor,
     Rocket, Flight, MonteCarlo), equations of motion, flight examples.
     <https://docs.rocketpy.org/>
-18. RocketPy Team. *RocketSerializer* [software]: OpenRocket `.ork` to RocketPy
+19. RocketPy Team. *RocketSerializer* [software]: OpenRocket `.ork` to RocketPy
     converter. <https://github.com/RocketPy-Team/RocketSerializer>
 
 **Cambridge Rocketry Simulator**
 
-19. Box, S., Eerland, W. J., et al. (2016). *Cambridge Rocketry Simulator* [software],
+20. Box, S., Eerland, W. J., et al. (2016). *Cambridge Rocketry Simulator* [software],
     version 3.1. GNU GPL v3.
     <https://sourceforge.net/projects/camrocsim/> ·
     Archived: [Zenodo, DOI 10.5281/zenodo.161850](https://doi.org/10.5281/zenodo.161850)
-20. Cambridge Rocketry Simulator project site: technical details, user guide,
+21. Cambridge Rocketry Simulator project site: technical details, user guide,
     MATLAB/Octave toolbox downloads. <https://cambridgerocket.sourceforge.net/>
+
+**MAPLEAF**
+
+22. Stoldt, H., et al. (2021). *MAPLEAF* [software]. MIT License. Pinned here at
+    `af970d3` (2021-12-11, tip of `master`); dormant since.
+    <https://github.com/henrystoldt/MAPLEAF> ·
+    PyPI: <https://pypi.org/project/MAPLEAF/>
+23. MAPLEAF project. *MAPLEAF code documentation* (pdoc3 site), including the
+    verification and validation section documenting expected regression results.
+    <https://henrystoldt.github.io/MAPLEAF/>
+
+**ForRocket and OpenTsiolkovsky**
+
+24. Tanaka, S. (2020). *ForRocket* [software]: 6-DOF rocket trajectory solver. MIT
+    License. Pinned here at `10fdcd0` (2020-04-11, tip of `master`); newer unmerged
+    work exists on `develop` (2025-04-28) and `dev_minor-update` (2026-07-08).
+    <https://github.com/sus304/ForRocket>
+25. Interstellar Technologies Inc. *OpenTsiolkovsky* [software]: rocket flight
+    simulator. MIT License. Pinned here at `a699805` (2025-09-28, tip of `master`).
+    <https://github.com/istellartech/OpenTsiolkovsky>
 
 ### Related resources
 
-21. thrustcurve.org — hobby rocket motor data repository (source of OpenRocket's and
+26. thrustcurve.org — hobby rocket motor data repository (source of OpenRocket's and
     RocketPy's motor data). <https://www.thrustcurve.org/>
-22. OpenRocket wiki. "Third-Party Compatibility" — interchange between OpenRocket,
+27. OpenRocket wiki. "Third-Party Compatibility" — interchange between OpenRocket,
     RockSim, and RASAero II. <https://wiki.openrocket.info/Third-Party_Compatibility>
-23. Free Rocket Tree Consortium. *Simulation Components and Subcomponent Libraries*
+28. Free Rocket Tree Consortium. *Simulation Components and Subcomponent Libraries*
     (2026-08-24). [`docs/research/simulation-components-and-libraries.md`](simulation-components-and-libraries.md)
     — companion catalog of additional simulators and of library-level building blocks
     for the common simulation core.
-24. Cambridge University Spaceflight. *CamPyRoS — Cambridge Python Rocketry Simulator*
+29. Cambridge University Spaceflight. *CamPyRoS — Cambridge Python Rocketry Simulator*
     [software], version 1.1 (final commit 2021-04-30). GNU GPL v3. A separate codebase
     from CamRocSim despite the name and shared institution.
     <https://github.com/cuspaceflight/CamPyRoS>
 
 ### RASAero method disclosures (primary)
 
-25. Rogers, C. E. (crogers168). "Differences Between the Barrowman Method and the
+30. Rogers, C. E. (crogers168). "Differences Between the Barrowman Method and the
     Rogers Modified Barrowman Method." RocketryForum thread — the author's most
     explicit method attribution (Barrowman/TIR-33, Jorgensen, USAF DATCOM, Missile
     DATCOM, Modified Newtonian).
     <https://www.rocketryforum.com/threads/differences-between-the-barrowman-method-and-the-rogers-modified-barrowman-method.163535/>
-26. Rogers, C. E. (crogers168). RocketryForum threads: "RASAero Source Code?"
+31. Rogers, C. E. (crogers168). RocketryForum threads: "RASAero Source Code?"
     (source-code status, 2018)
     [144646](https://www.rocketryforum.com/threads/rasaero-source-code.144646/);
     "New Version of the Free RASAero II Software (Version 1.0.2.0) Released"
@@ -1205,74 +1236,74 @@ these exact trees. See [`subs/CLAUDE.md`](../../subs/CLAUDE.md) for the set, and
     "Streamlined Protuberance Drag, Camera Shroud Drag, and Saturn I Block I Flight
     Data"
     [197641](https://www.rocketryforum.com/threads/streamlined-protuberance-drag-camera-shroud-drag-and-saturn-i-block-i-flight-data.197641/).
-27. Rogers Aeroscience technical-report and validation pages: aerodynamic validation
+32. Rogers Aeroscience technical-report and validation pages: aerodynamic validation
     data, solid-motor articles, flight comparisons.
     <https://www.rasaero.com/comparisons.htm> and the `dl_aerodynamics.htm`,
     `dl_technical_reports.htm` download pages at rasaero.com.
 
 ### Aerodynamic methods literature (for replication)
 
-28. Barrowman, J. S., & Barrowman, J. A. (1966). *The Theoretical Prediction of the
+33. Barrowman, J. S., & Barrowman, J. A. (1966). *The Theoretical Prediction of the
     Center of Pressure*. NARAM-8 R&D Project Report.
-29. Barrowman, J. S. (1967). *The Practical Calculation of the Aerodynamic
+34. Barrowman, J. S. (1967). *The Practical Calculation of the Aerodynamic
     Characteristics of Slender Finned Vehicles*. M.S. thesis, Catholic University of
     America.
-30. Barrowman, J. (1970). *Calculating the Center of Pressure of a Model Rocket*.
+35. Barrowman, J. (1970). *Calculating the Center of Pressure of a Model Rocket*.
     Centuri Engineering Co., Technical Information Report TIR-33.
-31. Allen, H. J., & Perkins, E. W. (1951). *A Study of Effects of Viscosity on Flow
+36. Allen, H. J., & Perkins, E. W. (1951). *A Study of Effects of Viscosity on Flow
     Over Slender Inclined Bodies of Revolution*. NACA Report 1048.
-32. Jorgensen, L. H. (1977). *Prediction of Static Aerodynamic Characteristics for
+37. Jorgensen, L. H. (1977). *Prediction of Static Aerodynamic Characteristics for
     Slender Bodies Alone and With Lifting Surfaces to Very High Angles of Attack*.
     NASA TR R-474. <https://ntrs.nasa.gov/citations/19770026166>
-33. Syvertson, C. A., & Dennis, D. H. (1957). *A Second-Order Shock-Expansion Method
+38. Syvertson, C. A., & Dennis, D. H. (1957). *A Second-Order Shock-Expansion Method
     Applicable to Bodies of Revolution Near Zero Lift*. NACA Report 1328 (supersedes
     NACA TN 3527, on NTRS).
-34. Van Dyke, M. D. (1952). *Practical Calculation of Second-Order Supersonic Flow
+39. Van Dyke, M. D. (1952). *Practical Calculation of Second-Order Supersonic Flow
     Past Nonlifting Bodies of Revolution*. NACA TN 2744.
-35. Lees, L. (1955). "Hypersonic Flow." *Proc. Fifth International Aeronautical
+40. Lees, L. (1955). "Hypersonic Flow." *Proc. Fifth International Aeronautical
     Conference*, Los Angeles, IAS. (Modified Newtonian theory.)
-36. Gentry, A. E., Smyth, D. N., & Oliver, W. R. (1973). *The Mark IV
+41. Gentry, A. E., Smyth, D. N., & Oliver, W. R. (1973). *The Mark IV
     Supersonic-Hypersonic Arbitrary-Body Program (HABP)*. AFFDL-TR-73-159.
     Public-domain descendant and reference list: <https://www.pdas.com/hyperrefs.html>
-37. Van Driest, E. R. (1951). "Turbulent Boundary Layer in Compressible Fluids."
+42. Van Driest, E. R. (1951). "Turbulent Boundary Layer in Compressible Fluids."
     *J. Aeronautical Sciences*, 18(3), 145–160; and (1956) "The Problem of
     Aerodynamic Heating." *Aeronautical Engineering Review*, 15(10). (Van Driest II.)
-38. Hopkins, E. J., & Inouye, M. (1971). "An Evaluation of Theories for Predicting
+43. Hopkins, E. J., & Inouye, M. (1971). "An Evaluation of Theories for Predicting
     Turbulent Skin Friction and Heat Transfer on Flat Plates at Supersonic and
     Hypersonic Mach Numbers." *AIAA Journal*, 9(6), 993–1003.
-39. Nikuradse, J. (1933). *Strömungsgesetze in rauhen Rohren*. VDI-Forschungsheft 361;
+44. Nikuradse, J. (1933). *Strömungsgesetze in rauhen Rohren*. VDI-Forschungsheft 361;
     English translation: NACA TM 1292 (1950). (Equivalent sand roughness.) See also
     Schlichting, H., *Boundary-Layer Theory*, McGraw-Hill.
-40. Hoerner, S. F. (1965). *Fluid-Dynamic Drag*. Hoerner Fluid Dynamics.
-41. Brazzel, C. E., & Henderson, J. H. (1966). "An Empirical Technique for Estimating
+45. Hoerner, S. F. (1965). *Fluid-Dynamic Drag*. Hoerner Fluid Dynamics.
+46. Brazzel, C. E., & Henderson, J. H. (1966). "An Empirical Technique for Estimating
     Power-On Base Drag of Bodies of Revolution With a Single Jet Exhaust." In *The
     Fluid Dynamic Aspects of Ballistics*, AGARD CP-10.
-42. Whitcomb, R. T. (1956). *A Study of the Zero-Lift Drag-Rise Characteristics of
+47. Whitcomb, R. T. (1956). *A Study of the Zero-Lift Drag-Rise Characteristics of
     Wing-Body Combinations Near the Speed of Sound*. NACA Report 1273. (Area rule.)
-43. Bonney, E. A. (1950). *Engineering Supersonic Aerodynamics*. McGraw-Hill.
+48. Bonney, E. A. (1950). *Engineering Supersonic Aerodynamics*. McGraw-Hill.
     (Practical treatment of Busemann second-order supersonic airfoil theory.)
-44. Vukelich, S. R., et al. (1988). *Missile DATCOM, Volume I — Final Report* and
+49. Vukelich, S. R., et al. (1988). *Missile DATCOM, Volume I — Final Report* and
     *Volume II — User's Manual*. AFWAL-TR-86-3091. DTIC ADA211086 / ADA210128.
     Later revisions: Blake, W. B. (1998), AFRL-VA-WP-TR-1998-3009; Rosema, C., et al.
     (2011), AFRL-RB-WP-TR-2011-3071, DTIC ADA548461; 2014 revision,
     AFRL-RQ-WP-TR-2014-0281, DTIC AD1000581. (Documentation public; code
     export-controlled.)
-45. Hoak, D. E., & Finck, R. D. (1978). *USAF Stability and Control DATCOM*.
+50. Hoak, D. E., & Finck, R. D. (1978). *USAF Stability and Control DATCOM*.
     AFWAL-TR-83-3048. (Digital Datcom implementation is public domain.)
-46. Moore, F. G. (2000). *Approximate Methods for Weapon Aerodynamics*. AIAA Progress
+51. Moore, F. G. (2000). *Approximate Methods for Weapon Aerodynamics*. AIAA Progress
     in Astronautics and Aeronautics, Vol. 186.
-47. Moore, F. G., McInville, R. M., & Hymer, T. C. (1998). *The 1998 Version of the
+52. Moore, F. G., McInville, R. M., & Hymer, T. C. (1998). *The 1998 Version of the
     NSWC Aeroprediction Code: Part I — Summary of New Theoretical Methodology*.
     NSWCDD/TR-98/1. DTIC ADA342842. Also: Moore, F. G., & Hymer, T. C. (2002),
     *The 2002 Version of the Aeroprediction Code*, NSWCDD/TR-01/108, DTIC ADA400445.
 
 ### Validation datasets cited by RASAero (all public)
 
-48. James, C. S., & Carros, R. J. (1953). NACA RM A53D02 — fin-stabilized body of
+53. James, C. S., & Carros, R. J. (1953). NACA RM A53D02 — fin-stabilized body of
     revolution, fineness ratio 10, Mach 0.6–10.
-49. Stoney, W. E. (1961). *Collection of Zero-Lift Drag Data on Bodies of Revolution
+54. Stoney, W. E. (1961). *Collection of Zero-Lift Drag Data on Bodies of Revolution
     from Free-Flight Investigations*. NASA TR R-100.
-50. Ferris, J. C. (1967). NASA TN D-4013, and Babb, C. D., & Fuller, D. E. (1967),
+55. Ferris, J. C. (1967). NASA TN D-4013, and Babb, C. D., & Fuller, D. E. (1967),
     NASA TN D-4014 — ARCAS sounding rocket wind-tunnel data, Mach 0.60–4.63.
-51. Garcia, F. (1964). *An Aerodynamic Analysis of Saturn I Block I Flight Test
+56. Garcia, F. (1964). *An Aerodynamic Analysis of Saturn I Block I Flight Test
     Vehicles*. NASA TN D-2002, NASA MSFC.
