@@ -1,25 +1,29 @@
 # Rocket Simulation Software: Models, Inputs, and Portability
 
-A survey of five rocket flight simulation packages: **OpenRocket**, **RASAero II**,
-**RocketPy**, the **Cambridge Rocketry Simulator**, and **CamPyRoS**. For each, this
-report describes the physical and mathematical models used, the simulation input
-parameters the user supplies, the file formats involved, and the practical portability
-of the simulation for re-use or as a component in other systems.
+A survey of eight rocket flight simulation packages: **OpenRocket**, **RASAero II**,
+**RocketPy**, the **Cambridge Rocketry Simulator**, **CamPyRoS**, **MAPLEAF**,
+**ForRocket**, and **OpenTsiolkovsky**. For each, this report describes the physical and
+mathematical models used, the simulation input parameters the user supplies, the file
+formats involved, and the practical portability of the simulation for re-use or as a
+component in other systems.
 
 *Research date: 2026-08-22; revised 2026-08-24 against vendored source. Facts verified
 against primary sources (project documentation, source repositories, journal papers)
 where possible; unverified items are flagged inline.*
 
-**Four of the five are vendored as pinned submodules under [`subs/`](../../subs/CLAUDE.md)**,
+**Seven of the eight are vendored as pinned submodules under [`subs/`](../../subs/CLAUDE.md)**,
 so claims about them can be checked against the exact source they were drawn from. Each
 section names its pinned commit and links the corresponding primer. RASAero II is the
 exception and cannot be vendored: it is closed source, which is the subject of the special
 focus at the end of this report.
 
+The last three receive proportionate treatment: MAPLEAF gets the same full breakdown as the
+first five (§6), while ForRocket and OpenTsiolkovsky are profiled compactly (§7) because
+neither is in use in the hobby ecosystem this report serves.
+
 A companion catalog, *[Simulation Components and Subcomponent
 Libraries](simulation-components-and-libraries.md)*, covers what falls outside this
-report's five packages: other open-source flight simulators (notably **MAPLEAF**, an
-MIT-licensed 6-DOF framework that meets this survey's inclusion bar), and library-level
+report's eight packages: other open-source flight simulators, and library-level
 implementations of the individual pieces the *common simulation core* section below
 calls for — Barrowman implementations, chemical-equilibrium solvers, atmosphere and
 wind models, geodesy, and format readers.
@@ -206,7 +210,7 @@ there is no GUI or built-in geometry-to-drag CAD; the user scripts everything.
 | Flight dynamics | Full nonlinear **6-DOF rigid body with rigorous variable-mass treatment** (time-varying propellant mass, CM, and inertia tensor propagated through the equations of motion); a 3-DOF mode also available. Orientation via **quaternions**; 13-element state vector. |
 | Integrator | `scipy.integrate` solvers — **LSODA default** (adaptive, stiffness-switching); RK23/RK45/DOP853/Radau/BDF selectable; user-set `rtol`/`atol`. |
 | Aerodynamics | **Barrowman-based lift coefficients per surface** (nose cones: conical/ogive/Von Kármán/power series; trapezoidal/elliptical/free-form fin *sets*; tails/boattails); since 1.13 also **individual fins** (`Fin`, `TrapezoidalFin`, `EllipticalFin`, `FreeFormFin`) for asymmetric or individually-positioned fins, plus `GenericSurface`/`LinearGenericSurface` for arbitrary user-supplied coefficient sets. Overall drag from **user-supplied power-on/power-off C_D vs Mach curves** (CSV, function, or constant) — typically generated externally (e.g. RASAero, CFD, flight data). Stability margin vs Mach and time. |
-| Atmosphere | ISA standard, fully custom profiles, **University of Wyoming soundings, Windy.com API (ECMWF/GFS/ICON/ICONEU), operational forecasts (AIGFS/GFS/NAM/RAP/HRRR/HIRESW), reanalysis (ERA5), and ensembles (GEFS)** — the richest weather integration of the five. |
+| Atmosphere | ISA standard, fully custom profiles, **University of Wyoming soundings, Windy.com API (ECMWF/GFS/ICON/ICONEU), operational forecasts (AIGFS/GFS/NAM/RAP/HRRR/HIRESW), reanalysis (ERA5), and ensembles (GEFS)** — the richest weather integration of the eight. |
 | Motors | `SolidMotor` (grain geometry with burn regression from the thrust curve), `HybridMotor`, `LiquidMotor` (tank classes: mass-flow/mass/ullage/level-based, with fluid definitions), `GenericMotor`, and since 1.13 `RingClusterMotor` (annular clusters) and `PointMassMotor`; thrust from `.eng`, CSV static-fire data, constants, callables, or the ThrustCurve.org API. |
 | Recovery | `Parachute` objects with CdS, **arbitrary Python trigger functions** (pressure/height/full state — enabling altimeter-logic emulation), sampling rate, deployment lag, and sensor noise. |
 | Earth/gravity | Latitude-dependent gravity (**Somigliana formula**) or custom; WGS84/SIRGAS2000/NAD83/SAD69 datums; elevation and topography services. |
@@ -253,7 +257,7 @@ depends on upstream tools (OpenRocket/RASAero/measurement) for those values.
 
 ### Portability / re-use
 
-**Highest of the five — it is designed as a component.**
+**Highest of the eight — it is designed as a component.**
 
 - `pip install rocketpy`; pure Python on numpy/scipy/matplotlib/netCDF4 etc.;
   plotting is separated from simulation, so it runs fully **headless** in scripts,
@@ -406,7 +410,7 @@ project's own `novus_sim` format. There is **no design file format and no import
   numpy 1.19.3, ray 1.1.0): a record of what once worked, not a portable environment.
 - **GPL v3**, the same copyleft constraint as OpenRocket and CamRocSim.
 - What is worth mining: the **rotating-Earth frame and its transforms**, and the
-  **aerodynamic heating model** — neither has an equivalent in the other four.
+  **aerodynamic heating model** — neither has an equivalent in the other seven.
 
 ---
 
@@ -482,7 +486,7 @@ ground, and even those use its own column naming.
 - **Pip-installable, with a CLI and an importable package.** The runner layer
   (`SingleSimulations`, `Batch`, `MonteCarlo`, `Optimization`, `Convergence`) sits *above* the
   rocket and environment model rather than beside it, so the model is reusable under a
-  different driver — the cleanest seam of the five open cores for headless embedding.
+  different driver — the cleanest seam of the seven open cores for headless embedding.
 - **A published V&V suite that ships its own reference data** — see §9 below.
 - Against that: **dormant since 2021**, with a 2021-era dependency set that includes
   `matplotlib==3.2.2` as a **hard pin**, not a floor. Combined with Cython extensions compiled
@@ -647,21 +651,53 @@ rail buttons, no recovery-device modelling beyond a ballistic coast.
    overrides) and is structural in RocketPy and RASAero (mass properties are direct
    inputs, decoupled from geometry).
 
-4. **Licensing shapes the architecture.** RocketPy's MIT license permits any embedding;
-   OpenRocket's and CamRocSim's GPL v3 requires copyleft-compatible integration (or
-   process-level isolation via files/IPC, as CamRocSim's XML pipeline demonstrates);
-   RASAero II can only ever be an offline data generator.
+4. **Licensing shapes the architecture — and permissive licensing is now the majority
+   choice among open cores.** Four of the seven open packages are MIT (RocketPy, MAPLEAF,
+   ForRocket, OpenTsiolkovsky) and three are GPL v3 (OpenRocket, CamRocSim, CamPyRoS).
+   The split is largely generational rather than philosophical: **copyleft is concentrated
+   in the oldest projects** — first commits in 2009 (OpenRocket) and 2011 (CamRocSim) —
+   while every core begun from 2015 onward chose a permissive licence: ForRocket (2015),
+   OpenTsiolkovsky (2016), RocketPy (2018), MAPLEAF (2020). CamPyRoS (2020) is the one
+   exception, and a telling one — it inherited GPL from the Cambridge lineage rather than
+   selecting it.
+   The practical conclusion is unchanged and, if anything, sharper: MIT permits any
+   embedding, GPL v3 requires copyleft-compatible integration or process-level isolation
+   via files and IPC (as CamRocSim's XML pipeline demonstrates), and RASAero II can only
+   ever be an offline data generator. **GPL is what stops OpenRocket's core — the best
+   design model in the survey — from being a universal component**, and that remains the
+   single most consequential licensing fact here.
 
 5. **CamRocSim's stochastic wind/dispersion formulation** (correlated Gaussian wind
    profiles, confidence-bounded splash-down zones) predates and complements RocketPy's
    Monte Carlo framework and is worth mining even though the codebase itself is stale.
 
-6. **The two dormant projects are worth keeping for what only they have.** CamRocSim
-   contributes the correlated-wind formulation above and a momentum-based formulation of
-   the equations of motion; CamPyRoS contributes a rotating oblate-Earth integration frame
-   and the only aerodynamic heating model in the survey. Neither is a viable dependency —
-   both are GPL, unmaintained, and (in CamPyRoS's case) untested — so the value is in the
-   physics and the formulations, not the code.
+6. **Dormancy is not disqualifying when a project holds a formulation nothing else has.**
+   Four of the eight are now dormant — CamRocSim (2017), CamPyRoS (2021), MAPLEAF (2021),
+   and ForRocket, whose `master` has been static since 2020 — and each is kept here for a
+   specific reason rather than for completeness:
+
+   - **CamRocSim** — the correlated stochastic-wind formulation above, and a
+     momentum-based statement of the equations of motion.
+   - **CamPyRoS** — a rotating oblate-Earth integration frame, and the only aerodynamic
+     heating model in the survey.
+   - **MAPLEAF** — the strongest set: a **pluggable aerodynamic-coefficient interface that
+     already exists** rather than being proposed (§3 below), **selectable Earth models as a
+     single configuration key** with the integration frame following the choice, and a
+     **published V&V suite that ships its own reference data** (§9 below).
+   - **ForRocket** — architectural evidence only; it holds no unique formulation, and its
+     value is as a second independent example of the headless-solver shape.
+
+   The test is whether the *formulation* is unavailable elsewhere, not whether the code is
+   usable. None of the four is a viable dependency: three are GPL or untested, MAPLEAF
+   carries a 2021 dependency floor, and ForRocket ships no validation evidence. The value
+   is in the physics and the design, not the packages.
+
+7. **A recent "last push" date is not evidence of maintenance.** ForRocket's repository
+   reports 2026 activity while its default branch has been untouched since April 2020; the
+   newer work sits on branches that were never merged. MAPLEAF shows the same pattern with
+   unmerged student capstone branches. Any evaluation of project health here has to read
+   the **default branch**, which is why every section in this report names the commit it is
+   pinned to.
 
 ---
 
@@ -669,7 +705,7 @@ rail buttons, no recovery-device modelling beyond a ballistic coast.
 
 This section sketches the feature set a single simulation **library** would need in
 order to serve, if correctly implemented, as a drop-in replacement for the simulation
-cores of all five projects surveyed above. The scope is deliberately the *core only*:
+cores of all eight projects surveyed above. The scope is deliberately the *core only*:
 flight physics, environment, events, dispersion, and the programmatic surface around
 them. Design editing, CAD, visualization, GUIs, and motor/parts databases are
 consumers of such a library, not part of it. Each feature below is a superset drawn
@@ -696,11 +732,21 @@ demonstrably implementable and demonstrably needed.
 
 - **Adaptive, selectable integrators** — at minimum an RK4/RKF45-class fixed and
   adaptive pair plus a stiffness-capable solver (RocketPy's LSODA default), with
-  user-set tolerances and step limits.
+  user-set tolerances and step limits. **MAPLEAF (§6) is the reference point for how far
+  this can be taken**: nine schemes selectable by name, adaptive ones defined by a Butcher
+  tableau in a documented text format — so adding a scheme is data rather than code — and
+  step-size adaptation itself pluggable between constant, safety-factor, and PID control on
+  a target-error metric.
 - **Event-exact integration**: discrete flight events (ignition, burnout, rail
   departure, apogee, deployment triggers, altitude crossings, touchdown) located by
   root-finding rather than landing on whichever step is nearest, so event timing does
-  not depend on step size.
+  not depend on step size. Where root-finding is not used, the fallback must be explicit:
+  **MAPLEAF deliberately overrides adaptive stepping near detected events**, shrinking the
+  step toward a configured floor as a trigger approaches, precisely because
+  altitude-triggered events otherwise resolve only to step boundaries — and it resolves
+  time-deterministic events exactly. Contrast ForRocket and OpenTsiolkovsky (§7), whose
+  events are scheduled by time rather than detected at all, and CamPyRoS, whose apogee
+  detection polls on a fixed 1-second interval.
 - **Determinism and reproducibility**: identical inputs plus an explicit random seed
   must reproduce identical trajectories bit-for-bit on a given platform (OpenRocket
   already persists a wind seed in `.ork` files); turbulence generation must be
@@ -709,11 +755,12 @@ demonstrably implementable and demonstrably needed.
 
 ### 3. Aerodynamics — a pluggable coefficient interface
 
-The single largest divergence among the five tools is *where aerodynamic coefficients
-come from* — spanning fully built-in (OpenRocket, RASAero) to entirely imported
-(CamPyRoS, which has no geometry-based model at all). A common core should therefore define aerodynamics as an **interface**
-(coefficients as functions of Mach, angle of attack, Reynolds number, power-on/off
-state, and control deflections) with multiple interchangeable providers:
+The single largest divergence among the eight tools is *where aerodynamic coefficients
+come from* — spanning fully built-in (OpenRocket, RASAero) to entirely imported (CamPyRoS,
+ForRocket, and OpenTsiolkovsky, none of which has a geometry-based model at all). A common
+core should therefore define aerodynamics as an **interface** (coefficients as functions of
+Mach, angle of attack, Reynolds number, power-on/off state, and control deflections) with
+multiple interchangeable providers:
 
 - **Analytic geometry-based provider**: extended Barrowman (OpenRocket's formulation —
   body lift, arbitrary fin planforms, fin–body interference, pitch and roll damping,
@@ -731,6 +778,27 @@ state, and control deflections) with multiple interchangeable providers:
 - **Live stability outputs**: CP, CNα, static margin (calibers and alternative
   measures), and dynamic-stability derivatives, exposed continuously so client
   applications can implement OpenRocket-style real-time design feedback.
+
+**This interface is not hypothetical — MAPLEAF (§6) already implements it.** That is the
+single most useful finding in this report for anyone building the core described here.
+Aerodynamic force sources in MAPLEAF are *components in the same list as physical parts*,
+registered in a factory and interchangeable within one vehicle: geometry build-up
+(Barrowman-class CN and CP, plus skin friction, base drag, and blunt-body and cross-flow
+terms) from nose-cone, body-tube, fin, and boat-tail components; a constant-coefficient
+provider; a constant damping-derivative provider; and a tabulated provider that interpolates
+a CSV of **arbitrary dimensionality**, keyed on any combination of Mach, altitude, unit
+Reynolds number, total angle of attack, roll angle, AOA, or angle of sideslip. The same
+key vocabulary drives gain scheduling for its control systems, so "what may a table be
+indexed by" is answered once for the whole codebase.
+
+Two qualifications matter before treating it as a template. First, MAPLEAF's providers
+compose **additively as force contributors** rather than by substituting one coefficient
+source for another wholesale — closer to the "component drag build-up with attribution"
+bullet above than to a strategy pattern. Second, the *expression-defined* provider
+(`CalculatedAeroForce`), intended to accept coefficients as Python expressions in the style
+of a generic global aerodynamic model, is **declared in its configuration template but
+marked unimplemented** and is absent from the pinned tree. The interface is real and worth
+studying; that fourth provider is not part of it.
 
 ### 4. Propulsion
 
@@ -760,6 +828,20 @@ state, and control deflections) with multiple interchangeable providers:
   and centrifugal terms are structural rather than corrections (CamPyRoS) — which matters
   only for long-range or high-apogee vehicles, and can otherwise be reduced away.
 
+  **MAPLEAF (§6) shows how to expose that choice cleanly, and generalizes CamPyRoS's
+  contribution**: a single `EarthModel` key takes `None`, `Flat`, `Round`, or `WGS84`, and
+  **the integration frame follows the selection automatically** — launch-tower frame for the
+  first two, Earth-Centered Inertial for the latter two — with `Round` a rotating sphere
+  under inverse-square gravity and `WGS84` a rotating ellipsoid with a J2 gravity model. A
+  user pays for rotating-frame fidelity only when they ask for it, and the reduction
+  CamPyRoS cannot express becomes one configuration value. MAPLEAF also documents the
+  neglected terms explicitly (polar wobble, third-body gravity, tides, solar radiation
+  pressure), which is the right convention for a core that will be cited in analyses.
+  OpenTsiolkovsky (§7) independently implements the same top tier — WGS84/EGM96 gravity
+  with J2 — while ForRocket illustrates the trap of naming: it uses WGS84 for its frames
+  and geodesy but computes gravity as a scalar inverse-square law with **no J2 term at all**,
+  so "WGS84" in a feature list describes a shape, not necessarily a gravity field.
+
 ### 6. Events, recovery, and control hooks
 
 - **Recovery devices as triggerable objects**: parachutes and streamers characterized
@@ -787,7 +869,15 @@ RocketPy/CamRocSim):
 
 - Distributions attachable to any input parameter — aero coefficients, CP, thrust
   scale, masses, launch angle, parachute C_D (CamRocSim's perturbation set;
-  RocketPy's stochastic wrappers).
+  RocketPy's stochastic wrappers). **MAPLEAF's `_stdDev` convention (§6) is the cheapest
+  known way to achieve this**: any key in the simulation definition becomes normally
+  distributed by adding a sibling key of the same name suffixed `_stdDev`, with the
+  original value read as the mean. It is implemented **in the configuration reader**, not
+  in a Monte Carlo module — so *every* scalar and vector parameter in the entire schema is
+  stochastic-capable with no per-parameter support code anywhere in the codebase, and new
+  parameters inherit the capability for free. The limitation is that it offers normal
+  distributions only, where RocketPy's wrappers admit arbitrary ones; the architectural
+  lesson survives that limitation intact.
 - **Correlated wind-profile uncertainty** (mean profile + covariance over altitude,
   CamRocSim's distinctive contribution), not just independent per-parameter noise.
 - Parallel batch execution, convergence diagnostics and confidence intervals
@@ -832,6 +922,17 @@ These are what make it a *component* rather than another application:
   CamRocSim's telemetry checks), runnable in CI, so "correctly implemented" is a
   testable claim rather than an aspiration — and so replacing an existing core can be
   justified with numbers.
+
+  **MAPLEAF (§6) is the existence proof that this is achievable.** Its batch runner drives
+  eight case files — NASA verification cases, OpenRocket comparison cases, Sparrow missile
+  cases, static-stability and parametric fin-body sweeps, the Sooy/Schmidt engineering-method
+  comparison discussed below, and a regression set — from one command. Critically, the
+  **reference data ships in the repository** as digitized CSV curves rather than being
+  described in prose, so the comparison is executable by anyone who clones the tree, and the
+  case files specify expected values and plot overlays declaratively. That is the standard to
+  match. It also sets a floor worth stating: **ForRocket (§7) ships no trajectory-level
+  validation at all** — three unit tests covering a clock and an interpolator — which is why
+  it appears in this report as architectural evidence and not as a candidate dependency.
 - **Scientific honesty switches**, per the consortium README: the core should report
   the validity envelope of the active models (e.g., Barrowman's α and Mach
   assumptions), warn when a trajectory exits it, and refuse to silently extrapolate —
@@ -936,6 +1037,7 @@ would draw on:
 | Compressible skin friction | Van Driest II (1951/1956); Hopkins & Inouye evaluation (AIAA J., 1971); Hopkins charts, NASA TN D-6945 (1972); Nikuradse equivalent sand roughness (NACA TM 1292); Schlichting, *Boundary-Layer Theory* |
 | Base drag & power-on plume | Hoerner, *Fluid-Dynamic Drag* (1965); Brazzel & Henderson power-on base drag correlation (AGARD CP-10, 1966 — which breaks down in exactly the high-thrust-ratio regime Rogers says he extended empirically); Moore's AP98/AP02 improved power-on base drag models |
 | Transonic drag rise | Whitcomb area rule (NACA Report 1273, 1956); empirical subsonic↔supersonic fairing as documented in Missile DATCOM Vol. I and Moore |
+| Engineering-method validation (benchmark) | Sooy & Schmidt, "Aerodynamic Predictions, Comparisons, and Validations Using Missile DATCOM (97) and Aeroprediction 98 (AP98)", *Journal of Spacecraft and Rockets* **42**(2), 257–265 (2005), DOI [`10.2514/1.7814`](https://doi.org/10.2514/1.7814) — a published head-to-head of the two engineering codes against wind-tunnel and CFD data, and the closest thing to a public acceptance test for a RASAero-class method set |
 | Complete method catalogs | **Missile DATCOM** documentation — methods and user's manuals are public on DTIC (AFWAL-TR-86-3091 Vols I–II; 1997, 2011, 2014 revisions) even though the code itself is export-controlled; **NSWC Aeroprediction Code** series (AP98: NSWCDD/TR-98/1; AP02: NSWCDD/TR-01/108, both on DTIC); and above all **Moore, *Approximate Methods for Weapon Aerodynamics*** (AIAA, 2000) — the single best open, book-form catalog of engineering methods for slender finned vehicles from Mach 0 to 20 |
 
 Two attribution caveats, kept explicit: Rogers names the DATCOM family, TIR-33,
@@ -958,6 +1060,19 @@ methods, not the code.
    NASA TN D-4013/D-4014 ARCAS wind-tunnel data, NASA TN D-2002 Saturn I). An open
    implementation can be held to the same benchmarks — and compared head-to-head
    against RASAero's own published comparison PDFs.
+
+   **The Sooy & Schmidt benchmark above is already implemented, and that makes this step
+   runnable rather than notional.** MAPLEAF ships it as
+   [`SooyAP98DC97Cases.mapleaf`](../../subs/mapleaf/MAPLEAF/Examples/BatchSims/SooyAP98DC97Cases.mapleaf),
+   four cases built up by derived dictionary — body alone, body with flare, finned body,
+   and a conventional rocket — sweeping angle of attack at fixed Mach and unit Reynolds
+   number and plotting CN, Cm, and CP against **digitized reference curves that ship in the
+   same tree**: AP98 and Missile DATCOM 97 for every case, wind-tunnel data for the
+   body-alone configuration, and FLU3M, TLNS, and USER3D CFD results for the conventional
+   rocket. A new implementation can therefore be dropped into an existing, executable
+   comparison against two established engineering codes, experiment, and CFD at once,
+   instead of rebuilding the harness first. MAPLEAF is MIT-licensed, so the case
+   definitions and digitized data are reusable.
 3. **Use RASAero as a reference for differential testing.** Batch CSV exports (via
    pyrasaero GUI automation) provide dense coefficient tables for comparing an open
    implementation against RASAero across Mach, α, and geometry sweeps.
