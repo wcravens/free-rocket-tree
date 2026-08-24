@@ -135,17 +135,27 @@ The most consequential finding in this catalog:
 ### §5 Environment
 
 Well-served by maintained, permissively licensed libraries. There is no reason for a
-shared core to hand-roll any of these.
+shared core to hand-roll any of these. Organized by the need each library was found
+against.
 
-| Need | Library | License | Status |
-|---|---|---|---|
-| ISA / standard atmosphere | [ambiance](https://github.com/airinnova/ambiance) | Apache-2.0 | **Dormant** — `master` 2022-10-06, 46 stars. Full ICAO Standard Atmosphere 1993, a fixed standard the library implements completely; dormancy here means finished, not abandoned. |
-| US Standard Atmosphere 1976 to 1000 km | PDAS `atmosphere` | Public domain | Static; includes hot/cold/polar/tropical non-standard variants. |
-| Upper-atmosphere density/temperature | [pymsis](https://github.com/SWxTREC/pymsis) | MIT | Active (2026-07-08), 38 stars. NRL's own MSIS wrapper — MSIS2.0/2.1 and NRLMSISE-00. The best-provenance option. |
-| NRLMSISE-00 (alternatives) | [fluids.atmosphere](https://github.com/CalebBell/fluids) (MIT, very active, 450 stars, also bundles HWM93/HWM14 wind); [pynrlmsise00](https://github.com/st-bender/pynrlmsise00) (GPL-2.0, 2024-09-30); [ATMOS/pyatmos](https://github.com/lcx366/ATMOS) (MIT, 2024-11-05, adds COESA76 and JB2008) | mixed | — |
-| Horizontal wind (climatological) | HWM14, via `fluids.atmosphere` | MIT | The empirical upper-atmosphere wind counterpart to MSIS. |
-| Soundings and forecast weather | [MetPy](https://unidata.github.io/MetPy/) (BSD-3), [siphon](https://github.com/Unidata/siphon) (BSD-3, THREDDS/Wyoming sounding access), [SounderPy](https://github.com/kylejgillett/sounderpy) (MIT, retrieves RAOB/ACARS/model/reanalysis profiles), [Herbie](https://github.com/blaylockbk/Herbie) (MIT, NWP model archive access, `main` 2026-06-07) | permissive | All active. Collectively they cover the weather sources RocketPy fetches, as a decoupled optional layer — which is precisely the §9 "no network dependencies in the core" separation. |
-| Geodesy and datums | [pyproj](https://pyproj4.github.io/pyproj/) (MIT, PROJ bindings), [GeographicLib](https://geographiclib.sourceforge.io/) (MIT, C++/Python/Java/JS) | MIT | Active. Geodesic distance, WGS84 conversions, and local-tangent-plane transforms — the §5 geodesy requirement, solved. |
+| Component | Type | License | Status | Assessment |
+|---|---|---|---|---|
+| [ambiance](https://github.com/airinnova/ambiance) | Supporting lib | Apache-2.0 | **Dormant** — `master` 2022-10-06, 46 stars | ISA / standard atmosphere: full ICAO Standard Atmosphere 1993, a fixed standard the library implements completely; dormancy here means finished, not abandoned. |
+| PDAS `atmosphere` | Supporting lib | Public domain | Static | US Standard Atmosphere 1976 to 1000 km: includes hot/cold/polar/tropical non-standard variants. |
+| [pymsis](https://github.com/SWxTREC/pymsis) | Supporting lib | MIT | Active — `main` 2026-07-08, 38 stars | Upper-atmosphere density/temperature: NRL's own MSIS wrapper — MSIS2.0/2.1 and NRLMSISE-00. The best-provenance option. |
+| [fluids.atmosphere](https://github.com/CalebBell/fluids) | Supporting lib | MIT | Active — `master` 2026-07-26, 450 stars | NRLMSISE-00 (alternatives): also bundles HWM93/HWM14 horizontal wind — the empirical upper-atmosphere wind counterpart to MSIS — in the same dependency. |
+| [pynrlmsise00](https://github.com/st-bender/pynrlmsise00) | Supporting lib | GPL-2.0 | Quiet — `master` 2024-09-30, 12 stars | NRLMSISE-00 (alternatives): an alternative NRLMSISE-00 implementation. |
+| [ATMOS / pyatmos](https://github.com/lcx366/ATMOS) | Supporting lib | MIT | Quiet — `master` 2024-11-05, 44 stars | NRLMSISE-00 (alternatives): adds COESA76 and JB2008 atmosphere models alongside NRLMSISE-00. |
+| [MetPy](https://unidata.github.io/MetPy/) | Supporting lib | BSD-3-Clause | Active | Soundings and forecast weather: sounding analysis and thermodynamics. |
+| [siphon](https://github.com/Unidata/siphon) | Supporting lib | BSD-3-Clause | Active — `main` 2026-08-03, 245 stars | Soundings and forecast weather: THREDDS/Wyoming sounding access. |
+| [SounderPy](https://github.com/kylejgillett/sounderpy) | Supporting lib | MIT | Active — `main` 2026-08-02, 78 stars | Soundings and forecast weather: retrieves RAOB/ACARS/model/reanalysis profiles. |
+| [Herbie](https://github.com/blaylockbk/Herbie) | Supporting lib | MIT | Active — `main` 2026-06-07, 784 stars | Soundings and forecast weather: NWP model archive access. |
+| [pyproj](https://pyproj4.github.io/pyproj/) | Supporting lib | MIT | Very active | Geodesy and datums: PROJ bindings — geodesic distance, WGS84 conversions, and local-tangent-plane transforms. |
+| [GeographicLib](https://geographiclib.sourceforge.io/) | Supporting lib | MIT | Active | Geodesy and datums: C++/Python/Java/JS implementations — the §5 geodesy requirement, solved. |
+
+All active. Collectively siphon, SounderPy, Herbie, and MetPy's remote helpers cover the
+weather sources RocketPy fetches, as a decoupled optional layer — which is precisely the
+§9 "no network dependencies in the core" separation.
 
 ### §6 Events, recovery, and control
 
