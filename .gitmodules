@@ -7,3 +7,6 @@
 [submodule "subs/campyros"]
 	path = subs/campyros
 	url = https://github.com/cuspaceflight/CamPyRoS.git
+[submodule "subs/camrocsim"]
+	path = subs/camrocsim
+	url = https://git.code.sf.net/p/camrocsim/code

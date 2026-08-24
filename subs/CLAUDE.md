@@ -29,15 +29,32 @@ Python Rocketry Simulator, a GPLv3 Python 6-DOF trajectory package from CU Space
 aerodynamic heating, live wind data, and Monte Carlo stochastic analysis on top of the usual
 trajectory model.
 
-Not to be confused with the **Cambridge Rocketry Simulator** (`camrocsim`, Box and Eerland) that
-`docs/research/` surveys as CRS — that is a separate C++/Java project hosted on SourceForge, and it
-is not vendored here.
+Not to be confused with the **Cambridge Rocketry Simulator** vendored at `./camrocsim` — a
+separate C++/Java project by Box and Eerland, and the one `docs/research/` surveys as CRS.
 
 Read `./CLAUDE-campyros.md` before working in that tree; it covers the package layout, domain
 model, coordinate frames, and the parts of the tree that do not actually run.
 
 Pinned at the tip of `main` (2021-04-30); upstream has been dormant since. There is also a `v1.0`
 tag if an exact release point is ever needed.
+
+## Cambridge Rocketry Simulator
+
+`./camrocsim` is a submodule of the [Cambridge Rocketry Simulator](https://sourceforge.net/projects/camrocsim/)
+— the GPL six-degree-of-freedom simulator by Simon Box and Willem Eerland, and the **CRS** that
+`docs/research/` surveys and that the RocketPy paper benchmarks against. Three languages in one
+tree: a C++ simulation core, a Java GUI, and a Python plotter.
+
+Its `gui/` is a fork of **OpenRocket** (`net.sf.openrocket`), which we also vendor at
+`./openrocket` — so that subtree is a 2016-era snapshot of a project whose current source is
+already here. Read across the two rather than treating `camrocsim/gui` as its own thing.
+
+Read `./CLAUDE-camrocsim.md` before working in that tree; it covers the build, the three-language
+pipeline, the simulation core, and conventions.
+
+Pinned at the tip of `master` (2017-01-13), upstream's final commit; the project has been dormant
+since. Commit `3ed1513` (2016-10-13) is byte-identical to the released `camrocsim_3.1_src.tar.gz`,
+if a pin that matches the published 3.1 download is ever needed.
 
 ## Adding a submodule
 
