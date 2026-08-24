@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # PreToolUse guard: keep vendored third-party source under subs/ read-only.
 #
+# Scope: the submodule directories recorded in .gitmodules (e.g. subs/openrocket).
+# This repo's own notes that sit directly in subs/ -- subs/CLAUDE.md and
+# friends -- are deliberately NOT covered; they are ours to edit.
+#
 # Permission deny rules cover Edit/Write/NotebookEdit but NOT Bash, which is the
 # primary edit path for many agent sessions. This closes that gap on a
 # best-effort basis. It is a guard against accidents, not a security boundary --
@@ -21,20 +25,36 @@ deny() {
   exit 0
 }
 
-REASON='subs/ holds vendored OpenRocket source pinned for citation accuracy and is read-only. Reading is fine; writing is not. For genuine submodule maintenance (update, re-pin), run the git command yourself with the ! prefix.'
+REASON='That path is inside a vendored submodule under subs/, which is pinned for citation accuracy and read-only. Reading is fine; writing is not. For genuine submodule maintenance (update, re-pin), run the git command yourself with the ! prefix. Note that the notes this repo keeps directly in subs/, such as subs/CLAUDE.md, are outside this guard and may be edited normally.'
+
+root="${CLAUDE_PROJECT_DIR:-$PWD}"
+
+# Protected prefixes: the submodule paths under subs/ recorded in .gitmodules.
+# Fail closed -- if that file cannot be read, guard the whole directory.
+protected=()
+while IFS= read -r p; do
+  [[ -n "$p" ]] && protected+=("$p")
+done < <(git config -f "$root/.gitmodules" --get-regexp '^submodule\..*\.path$' 2>/dev/null \
+         | awk '{print $2}' | sed 's:/*$::' | grep -E '^subs/[^/]+$')
+[[ ${#protected[@]} -gt 0 ]] || protected=("subs")
+
+# Regex alternation over those prefixes, for inspecting shell command text.
+alt=""
+for p in "${protected[@]}"; do alt="${alt:+$alt|}$p"; done
 
 # Bash, plus any MCP tool that takes a shell command (e.g. serena execute_shell_command).
 cmd=$(jq -r '.tool_input.command // ""' <<<"$input")
 if [[ "$tool" == "Bash" || -n "$cmd" ]]; then
 
-  # Only inspect commands that reference subs/ at all.
-  grep -qE '(^|[^[:alnum:]_./-])\.?/?subs/' <<<"$cmd" || exit 0
+  # Only inspect commands that reference a protected path at all. The trailing
+  # class is what keeps subs/openrocket from also matching subs/openrocket.md.
+  grep -qE "(^|[^[:alnum:]_./-])\.?/?($alt)([^[:alnum:]_.-]|$)" <<<"$cmd" || exit 0
 
-  # Mutating verbs anywhere in a command that touches subs/.
+  # Mutating verbs anywhere in a command that touches a protected path.
   if grep -qE '(^|[^[:alnum:]_-])(rm|mv|cp|touch|tee|install|truncate|dd|mkdir|rmdir|ln|chmod|chown|patch)([^[:alnum:]_-]|$)' <<<"$cmd" \
   || grep -qE '(sed|perl|ruby)[[:space:]]+[^|;&]*-i' <<<"$cmd" \
   || grep -qE 'git[[:space:]]+(-C[[:space:]]+[^[:space:]]+[[:space:]]+)?(checkout|apply|reset|clean|add|commit|rm|mv|restore|stash|submodule[[:space:]]+(update|add|deinit))' <<<"$cmd" \
-  || grep -qE '>[[:space:]]*\.?/?subs/' <<<"$cmd"; then
+  || grep -qE ">[[:space:]]*\.?/?($alt)" <<<"$cmd"; then
     deny "$REASON"
   fi
   exit 0
@@ -53,9 +73,10 @@ path=$(jq -r '
 [[ -n "$path" ]] || exit 0
 
 # Normalise: strip a leading project-root prefix, then a leading ./
-root="${CLAUDE_PROJECT_DIR:-$PWD}"
 rel="${path#"$root"/}"
 rel="${rel#./}"
-[[ "$rel" == subs/* ]] && deny "$REASON"
+for p in "${protected[@]}"; do
+  [[ "$rel" == "$p" || "$rel" == "$p"/* ]] && deny "$REASON"
+done
 
 exit 0

@@ -1,12 +1,12 @@
 {
   "permissions": {
     "deny": [
-      "Edit(./subs/**)",
-      "Edit(subs/**)",
-      "Write(./subs/**)",
-      "Write(subs/**)",
-      "NotebookEdit(./subs/**)",
-      "NotebookEdit(subs/**)"
+      "Edit(./subs/openrocket/**)",
+      "Edit(subs/openrocket/**)",
+      "Write(./subs/openrocket/**)",
+      "Write(subs/openrocket/**)",
+      "NotebookEdit(./subs/openrocket/**)",
+      "NotebookEdit(subs/openrocket/**)"
     ]
   },
   "hooks": {
