@@ -606,26 +606,26 @@ rail buttons, no recovery-device modelling beyond a ballistic coast.
 
 ## Comparative summary
 
-| | OpenRocket | RASAero II | RocketPy | CamRocSim | CamPyRoS |
-|---|---|---|---|---|---|
-| Vendored at | `subs/openrocket` | — (closed source) | `subs/rocketpy` | `subs/camrocsim` | `subs/campyros` |
-| License | GPL v3 | Freeware, closed source | **MIT** | GPL v3 | GPL v3 |
-| Language | Java | .NET (closed) | Python ≥ 3.10 | C++ core / Java GUI / Python plots | Python |
-| Status (2026) | Active (24.12) | Static since 2019 | Active (1.13.0) | Unmaintained since Jan 2017 | Unmaintained since Apr 2021 |
-| Ascent DOF | 6-DOF | 2/3-DOF | 6-DOF (3-DOF option) | 6-DOF | 6-DOF |
-| Attitude state | Quaternion | n/a (≤3-DOF) | Quaternion | Quaternion | **Rotation matrix** |
-| Integrated quantity | Velocity | n/a | Velocity | **Momentum** | Velocity |
-| Earth model | Flat / spherical / WGS84 + Coriolis | Flat | Flat + latitude-dependent gravity | Flat, inverse-square gravity | **Rotating oblate WGS84** |
-| Aero source | Extended Barrowman, built-in from geometry | Built-in, Mach 0.01–25, power-on/off | Barrowman lift + **user-supplied drag curves** | Barrowman + tabulated C_D(α, Re) | **Imported tables only** (RASAero CSV) |
-| Mach range strength | Subsonic (best), semi-empirical super | **Subsonic → hypersonic** | Whatever the supplied curves cover | Subsonic (Ma < 0.4 assumptions) | Whatever the supplied curves cover |
-| Integrator | Fixed-step RK4 | Not published | scipy LSODA (adaptive, selectable) | RKF45 adaptive | scipy DOP853 |
-| Aero heating | No | No | No | No | **Yes** |
-| Weather input | ISA + multi-level wind + CSV | Std. atmosphere + scalar wind | ISA/custom/**soundings/forecasts/ERA5/ensembles** | Tabulated XML profiles | **Live GFS** (network-bound) |
-| Monte Carlo | Via scripting (orhelper/extensions) | No | **Built-in framework** (parallel, KML ellipses, MRS) | **Built-in, core design goal** | Built-in (`StatisticalModel`, ray) |
-| Design formats | `.ork` (zip+XML); imports/exports `.rkt`, `.CDX1` | `.CDX1` (XML); imports `.rkt` | Code; `.rpy` save; `.ork` via RocketSerializer | Bespoke XML; imports `.ork`/`.rkt` | None — code only |
-| Motor formats | `.eng`, `.rse` (thrustcurve.org DB) | `.eng` | `.eng`, CSV, ThrustCurve API | Bespoke XML | CSV (`novus_sim` format) |
-| Headless use | Yes — Maven-published core + listener API | GUI automation only (pyrasaero) | **Native — it is a library** | Yes — CLI core driven by XML | Native, but network-bound |
-| Embedding suitability | Good (JVM, GPL) | Poor (data exporter only) | **Excellent (MIT, pip)** | Good architecture, stale code | Poor (GPL, untested, dormant) |
+| | OpenRocket | RASAero II | RocketPy | CamRocSim | CamPyRoS | MAPLEAF | ForRocket | OpenTsiolkovsky |
+|---|---|---|---|---|---|---|---|---|
+| Vendored at | `subs/openrocket` | — (closed source) | `subs/rocketpy` | `subs/camrocsim` | `subs/campyros` | `subs/mapleaf` | `subs/forrocket` | `subs/opentsiolkovsky` |
+| License | GPL v3 | Freeware, closed source | **MIT** | GPL v3 | GPL v3 | **MIT** | **MIT** | **MIT** |
+| Language | Java | .NET (closed) | Python ≥ 3.10 | C++ core / Java GUI / Python plots | Python | Python 3.6+ / Cython | C++ (Boost, Eigen) | Rust (+ legacy C++, TS/WASM UI) |
+| Status (2026) | Active (24.12) | Static since 2019 | Active (1.13.0) | Unmaintained since Jan 2017 | Unmaintained since Apr 2021 | Dormant since Dec 2021 | **`master` dormant since Apr 2020** (side branches newer) | Quiet — `master` Sep 2025 |
+| Ascent DOF | 6-DOF | 2/3-DOF | 6-DOF (3-DOF option) | 6-DOF | 6-DOF | 6-DOF (auto 3-DOF under chute) | 6-DOF | **3-DOF, prescribed attitude** (6-DOF only in legacy C++) |
+| Attitude state | Quaternion | n/a (≤3-DOF) | Quaternion | Quaternion | **Rotation matrix** | Quaternion | Quaternion | n/a — attitude prescribed |
+| Integrated quantity | Velocity | n/a | Velocity | **Momentum** | Velocity | Velocity | Velocity | Velocity |
+| Earth model | Flat / spherical / WGS84 + Coriolis | Flat | Flat + latitude-dependent gravity | Flat, inverse-square gravity | **Rotating oblate WGS84** | **`None`/`Flat`/`Round`/`WGS84`+J2 — selectable, frame follows** | Rotating WGS84 frames, but **inverse-square gravity, no J2** | **WGS84/EGM96 with J2** |
+| Aero source | Extended Barrowman, built-in from geometry | Built-in, Mach 0.01–25, power-on/off | Barrowman lift + **user-supplied drag curves** | Barrowman + tabulated C_D(α, Re) | **Imported tables only** (RASAero CSV) | **Provider interface**: build-up + constant + damping + tabulated | **Imported tables/constants only** | **Imported tables/constants only** |
+| Mach range strength | Subsonic (best), semi-empirical super | **Subsonic → hypersonic** | Whatever the supplied curves cover | Subsonic (Ma < 0.4 assumptions) | Whatever the supplied curves cover | Build-up is subsonic-class; tables cover whatever is supplied | Whatever the supplied tables cover | Whatever the supplied tables cover |
+| Integrator | Fixed-step RK4 | Not published | scipy LSODA (adaptive, selectable) | RKF45 adaptive | scipy DOP853 | **Nine RK schemes**, RK45 adaptive default, PID step control | Boost.odeint Dormand–Prince 5 — **compile-time, not configurable** | RK4 or Dormand–Prince 5(4), selectable |
+| Aero heating | No | No | No | No | **Yes** | No | No | No |
+| Weather input | ISA + multi-level wind + CSV | Std. atmosphere + scalar wind | ISA/custom/**soundings/forecasts/ERA5/ensembles** | Tabulated XML profiles | **Live GFS** (network-bound) | ISA/constant/tabulated + wind-rose & radiosonde sampling, pink-noise turbulence — **files only** | US Std. 1976 + wind CSV | Std. atmosphere + wind file + **air-density variation ratio** |
+| Monte Carlo | Via scripting (orhelper/extensions) | No | **Built-in framework** (parallel, KML ellipses, MRS) | **Built-in, core design goal** | Built-in (`StatisticalModel`, ray) | **Built-in — `_stdDev` on any key** | No | No (density variation only) |
+| Design formats | `.ork` (zip+XML); imports/exports `.rkt`, `.CDX1` | `.CDX1` (XML); imports `.rkt` | Code; `.rpy` save; `.ork` via RocketSerializer | Bespoke XML; imports `.ork`/`.rkt` | None — code only | None — `.mapleaf` schema only | None — JSON only | None — JSON only |
+| Motor formats | `.eng`, `.rse` (thrustcurve.org DB) | `.eng` | `.eng`, CSV, ThrustCurve API | Bespoke XML | CSV (`novus_sim` format) | None — CSV thrust tables | None — CSV tables | None — CSV thrust/Isp tables |
+| Headless use | Yes — Maven-published core + listener API | GUI automation only (pyrasaero) | **Native — it is a library** | Yes — CLI core driven by XML | Native, but network-bound | Native (CLI + library) | **Native — it is only a solver** | Native (CLI + WASM) |
+| Embedding suitability | Good (JVM, GPL) | Poor (data exporter only) | **Excellent (MIT, pip)** | Good architecture, stale code | Poor (GPL, untested, dormant) | Good (MIT, clean runner seam); dormant, Cython build, 2021 pins | Fair (MIT, C++); **no validation evidence**, stale master | Fair (MIT, Rust); launch-vehicle assumptions throughout |
 
 ## Observations for the consortium
 
