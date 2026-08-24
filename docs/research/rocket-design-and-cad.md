@@ -10,7 +10,7 @@ today, the state of as-built record keeping, and the known simulation-honesty pr
 that a design tool either causes or could cure. Simulation engines themselves
 (OpenRocket's simulator, RASAero II, RocketPy, CamRocSim) are covered in depth in the
 companion report *[Rocket Simulation Software: Models, Inputs, and
-Portability](rocket-open-simulation-designs.md)* and are referenced, not repeated,
+Portability](rocket-flight-simulation-designs.md)* and are referenced, not repeated,
 here.
 
 *Research date: 2026-08-23. Facts verified against primary sources (project sites,
@@ -664,6 +664,6 @@ All URLs accessed 2026-08-23.
 ### Companion report
 
 40. Free Rocket Tree Consortium. *Rocket Simulation Software: Models, Inputs, and
-    Portability* (2026-08-22). `docs/research/rocket-open-simulation-designs.md`
+    Portability* (2026-08-22). `docs/research/rocket-flight-simulation-designs.md`
     (this repository) — covers OpenRocket's simulator, RASAero II, RocketPy, and
     CamRocSim, including formats, embedding, and the common-core feature set.

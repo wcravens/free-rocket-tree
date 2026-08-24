@@ -43,7 +43,7 @@ consume rather than each reimplementing.
   unproven or inaccurate (e.g. pods); report model validity limits instead of
   silently extrapolating.
 - **Open question:** should we bother handling spin (e.g. canted fins)?
-- Research: [Rocket Simulation Software: Models, Inputs, and Portability](research/rocket-open-simulation-designs.md)
+- Research: [Rocket Simulation Software: Models, Inputs, and Portability](research/rocket-flight-simulation-designs.md)
 
 ### Flight Log
 

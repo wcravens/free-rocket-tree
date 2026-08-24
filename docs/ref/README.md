@@ -28,7 +28,7 @@ Giovani H. Ceotto, Rodrigo N. Schmitt, Guilherme F. Alves, Lucas A. Pezente, and
 
 The peer-reviewed description of RocketPy's physics and architecture — the companion to the source
 vendored at [`subs/rocketpy`](../../subs/CLAUDE-rocketpy.md), and the citation behind the RocketPy
-section of [Rocket Simulation Software: Models, Inputs, and Portability](../research/rocket-open-simulation-designs.md).
+section of [Rocket Simulation Software: Models, Inputs, and Portability](../research/rocket-flight-simulation-designs.md).
 
 **What it covers.** After the introduction it runs: *RocketPy Architecture* (the four-class data
 flow — Solid Motor → Rocket, plus Environment, into Flight; Figure 1); *Simulation Models and

@@ -664,5 +664,5 @@ All URLs accessed 2026-08-23.
 
 40. *Rocket Simulation Software: Models, Inputs, and Portability.* Free Rocket Tree
     Consortium research document (this repository),
-    `docs/research/rocket-open-simulation-designs.md` — flight-configuration override
+    `docs/research/rocket-flight-simulation-designs.md` — flight-configuration override
     support in OpenRocket/RASAero/RocketPy referenced in §5.2 above.
