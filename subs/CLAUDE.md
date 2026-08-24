@@ -1,0 +1,25 @@
+# Submodules
+
+This directory holds source for related projects, vendored as pinned git submodules.
+
+**These trees are read-only.** They are here to be read and cited, not changed — pinned so that
+the paths and line numbers we quote in `docs/` stay accurate. For genuine submodule maintenance
+(updating or re-pinning), run the git commands yourself with the `!` prefix.
+
+## OpenRocket
+
+`./openrocket` is a submodule of the [OpenRocket source](https://github.com/openrocket/openrocket) —
+the Java desktop model-rocket design and flight-simulation application at [openrocket.info](https://openrocket.info).
+
+Read `./CLAUDE-openrocket.md` before working in that tree; it covers the build, module layout,
+domain model, and conventions.
+
+## Adding a submodule
+
+The read-only rule is enforced in two places, and only one of them generalizes:
+
+- `.claude/hooks/protect-subs.sh` reads the submodule paths from `.gitmodules` on every invocation,
+  so a new submodule is protected the moment it is registered. Nothing to do.
+- `.claude/settings.json` names each submodule path explicitly in its `deny` rules. **Add the new
+  path there by hand.** A wildcard such as `subs/*/**` does not work: the permission layer matches a
+  rule by its leading literal directory, so that pattern denies all of `subs/` — including this file.
