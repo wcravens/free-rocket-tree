@@ -44,6 +44,7 @@ consume rather than each reimplementing.
   silently extrapolating.
 - **Open question:** should we bother handling spin (e.g. canted fins)?
 - Research: [Rocket Simulation Software: Models, Inputs, and Portability](research/rocket-flight-simulation-designs.md)
+- Research: [Simulation Components and Subcomponent Libraries](research/simulation-components-and-libraries.md)
 
 ### Flight Log
 
