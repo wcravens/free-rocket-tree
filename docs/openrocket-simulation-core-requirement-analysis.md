@@ -1,8 +1,9 @@
 # A Simulation Core for OpenRocket — Exploratory Proposal
 
 > **Speculative design notes — this does NOT describe the current codebase.**
-> Companion to `simulation-architecture.md`, which documents what exists today;
-> section references of the form §N below point into that document.
+> Companion to `openrocket-simulation-architecture.md`, which documents what
+> exists today. Reference convention: **`arch §N`** points into that document;
+> a bare **`§N`** points at a section of *this* one.
 >
 > Thought experiment: extract a *simulation core* that never sees a
 > `RocketComponent`. Everything the core consumes is pre-reduced by a
@@ -25,7 +26,7 @@ Not everything can be a scalar. The core's inputs fall into three kinds:
    problem is not inventing the interfaces but severing their implementations'
    dependence on the component tree (via precomputation, tabulation, or a
    tree-backed adapter kept outside the core).
-3. **The phase table** — per §2.4, most "rocket parameters" are only piecewise
+3. **The phase table** — per arch §2.4, most "rocket parameters" are only piecewise
    constant: they switch when a flight event fires (separation, burnout,
    deployment). So the core's rocket input is not one bundle but an event-keyed
    *sequence* of bundles.
@@ -111,7 +112,7 @@ not care.
 
 | Parameter | Code name | Kind | Meaning |
 |---|---|---|---|
-| Structure mass | `RigidBody.getMass()` (minus motors) | scalar **per phase** | Dry mass of everything except the motors; divides all forces to give linear acceleration. Constant between stage separations (§2.4) — the core never needs the tree, just one rigid-body bundle per phase |
+| Structure mass | `RigidBody.getMass()` (minus motors) | scalar **per phase** | Dry mass of everything except the motors; divides all forces to give linear acceleration. Constant between stage separations (arch §2.4) — the core never needs the tree, just one rigid-body bundle per phase |
 | Center of gravity | `RigidBody.getCM()` (CG) | vector per phase | The balance point. Torques act about it, and its axial position relative to the center of pressure (§4) sets the stability margin. **Not a scalar:** it is a full `Coordinate` — x is axial (measured aft from the nose tip), y/z are radial — and the radial components are really computed, since `MassCalculation` composes each component's CM through its 3-D instance offsets and transforms, so pods, asymmetric masses, and off-axis instances shift the balance point sideways. Today's steppers read only `getCM().x` (§10a), so the core interface should carry the vector even if the first implementation ignores y/z |
 | Longitudinal moment of inertia | `RigidBody.getLongitudinalInertia()` | scalar per phase | Resistance to rotation in pitch and yaw (nose swinging up/down or left/right); divides those torques to give angular acceleration |
 | Roll moment of inertia | `RigidBody.getRotationalInertia()` | scalar per phase | Resistance to spinning about the long axis; divides the roll torque |
@@ -148,14 +149,14 @@ The component tree's real role in the core is replaced by a **phase graph**:
 - Everything else (`LIFTOFF`, `APOGEE`, `GROUND_HIT`, `TUMBLE`, …) is *detected* by
   the core from state, not supplied.
 
-This is exactly the event-static column of §2.4 turned into an explicit input
+This is exactly the event-static column of arch §2.4 turned into an explicit input
 data structure instead of being re-derived from the tree at each event.
 
 ## 9. Integration & control
 
 | Parameter | Kind | Notes |
 |---|---|---|
-| Time-step ceiling | scalar | Real dt is adaptive (§4.2) |
+| Time-step ceiling | scalar | Real dt is adaptive (arch §4.2) |
 | Maximum angle step | scalar | Adaptive-dt limit |
 | Max simulation time | scalar | Hard cutoff |
 | Listeners | hooks | Extension mechanism; arguably part of the core's API rather than a parameter |
@@ -183,6 +184,6 @@ the stepper discards them.
 
 Component geometry, materials, finishes, overrides, motor database records,
 `FlightConfiguration` — all consumed by the characterization layer to *produce*
-§§4–8. The model↔sim rule of §2.3 becomes an architectural boundary: calipers
+§§4–8. The model↔sim rule of arch §2.3 becomes an architectural boundary: calipers
 and choices stay outside; only physics-ready quantities enter the core.
 
