@@ -4,3 +4,6 @@
 [submodule "subs/rocketpy"]
 	path = subs/rocketpy
 	url = https://github.com/RocketPy-Team/RocketPy.git
+[submodule "subs/campyros"]
+	path = subs/campyros
+	url = https://github.com/cuspaceflight/CamPyRoS.git
