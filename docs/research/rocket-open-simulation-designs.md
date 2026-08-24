@@ -1,14 +1,20 @@
 # Rocket Simulation Software: Models, Inputs, and Portability
 
-A survey of the four simulation packages identified in the Free Rocket Tree Consortium
-README: **OpenRocket**, **RASAero II**, **RocketPy**, and the **Cambridge Rocketry
-Simulator**. For each, this report describes the physical and mathematical models used,
-the simulation input parameters the user supplies, the file formats involved, and the
-practical portability of the simulation for re-use or as a component in other systems.
+A survey of five rocket flight simulation packages: **OpenRocket**, **RASAero II**,
+**RocketPy**, the **Cambridge Rocketry Simulator**, and **CamPyRoS**. For each, this
+report describes the physical and mathematical models used, the simulation input
+parameters the user supplies, the file formats involved, and the practical portability
+of the simulation for re-use or as a component in other systems.
 
-*Research date: 2026-08-22. Facts verified against primary sources (project
-documentation, source repositories, journal papers) where possible; unverified items
-are flagged inline.*
+*Research date: 2026-08-22; revised 2026-08-24 against vendored source. Facts verified
+against primary sources (project documentation, source repositories, journal papers)
+where possible; unverified items are flagged inline.*
+
+**Four of the five are vendored as pinned submodules under [`subs/`](../../subs/CLAUDE.md)**,
+so claims about them can be checked against the exact source they were drawn from. Each
+section names its pinned commit and links the corresponding primer. RASAero II is the
+exception and cannot be vendored: it is closed source, which is the subject of the special
+focus at the end of this report.
 
 ---
 
@@ -24,6 +30,8 @@ design changes.
 - Website: <https://openrocket.info/> · Repo: <https://github.com/openrocket/openrocket>
 - Technical documentation (v13.05, still the canonical model description):
   <https://openrocket.sourceforge.net/techdoc.pdf>
+- Vendored at [`subs/openrocket`](../../subs/CLAUDE-openrocket.md), pinned at `e0dc0cd`
+  (2025-11-08; `core/src/main/resources/build.properties` reads `build.version=24.12`).
 
 ### Models
 
@@ -36,7 +44,7 @@ design changes.
 | Wind | Mean wind plus **pink-noise (1/f^5/3) turbulence** approximating Kaimal/von Kármán spectra. Since 24.12: **multi-level wind** (speed/direction per altitude layer) and CSV wind-profile import. |
 | Motor | Tabulated thrust curves, interpolated; motor mass and CG vary through the burn. |
 | Recovery | 3-DOF descent; parachute default C_D = 0.8, streamer C_D from empirical wind-tunnel-derived formula. |
-| Geodesy/gravity | Selectable: flat Earth, spherical approximation, or WGS84 ellipsoid, including Coriolis effect. (Exact gravity formula not verified from a primary source.) |
+| Geodesy/gravity | Selectable: flat Earth, spherical approximation, or WGS84 ellipsoid, including Coriolis effect. `WGSGravityModel` in the vendored source implements the **Somigliana normal-gravity formula** with WGS84 constants (g_e = 9.7803267714, k = 1.93185138639e-3, e² = 6.69437999013e-3), plus an inverse-square altitude correction that assumes a spherical Earth. **This is the same formula RocketPy uses** (§3), the two differing only in the equatorial-gravity constant at the 1e-6 level — so gravity is not a source of divergence between them. |
 | Integrator | Fixed-step **4th-order Runge–Kutta** with dynamic step reduction during rapid rotation; default time step 0.05 s. Discrete event system (ignition, burnout, rod cleared, apogee, deployment, touchdown). |
 | Mass/inertia | Built up from component geometry × material density; longitudinal and rotational moments of inertia; overrides handled via parallel-axis theorem. |
 
@@ -106,6 +114,9 @@ research. Its distinguishing strength is aerodynamic prediction across **Mach 0.
 
 - Website: <https://rasaero.com/> · Users Manual:
   <https://rasaero.com/dloads/RASAero%20II%20Users%20Manual.pdf>
+- **Not vendored, and not vendorable** — closed source, so there is no tree to pin. Every
+  claim in this section rests on the Users Manual and the author's own forum posts rather
+  than on readable code, which is precisely the gap §"Special focus" addresses.
 
 ### Models
 
@@ -177,6 +188,8 @@ Simulator,"* ASCE Journal of Aerospace Engineering, 2021
 there is no GUI or built-in geometry-to-drag CAD; the user scripts everything.
 
 - Repo: <https://github.com/RocketPy-Team/RocketPy> · Docs: <https://docs.rocketpy.org/>
+- Vendored at [`subs/rocketpy`](../../subs/CLAUDE-rocketpy.md), pinned at `9bd6ad3`
+  (tag `v1.13.0`). The paper's preprint is in the [reference library](../ref/README.md).
 
 ### Models
 
@@ -184,13 +197,13 @@ there is no GUI or built-in geometry-to-drag CAD; the user scripts everything.
 |---|---|
 | Flight dynamics | Full nonlinear **6-DOF rigid body with rigorous variable-mass treatment** (time-varying propellant mass, CM, and inertia tensor propagated through the equations of motion); a 3-DOF mode also available. Orientation via **quaternions**; 13-element state vector. |
 | Integrator | `scipy.integrate` solvers — **LSODA default** (adaptive, stiffness-switching); RK23/RK45/DOP853/Radau/BDF selectable; user-set `rtol`/`atol`. |
-| Aerodynamics | **Barrowman-based lift coefficients per surface** (nose cones: conical/ogive/Von Kármán/power series; trapezoidal/elliptical/free-form fins; tails/boattails); overall drag from **user-supplied power-on/power-off C_D vs Mach curves** (CSV, function, or constant) — typically generated externally (e.g. RASAero, CFD, flight data). Stability margin vs Mach and time. |
-| Atmosphere | ISA standard, fully custom profiles, **University of Wyoming soundings, Windy.com API (ECMWF/GFS/ICON), operational forecasts (GFS/NAM/RAP/HRRR), reanalysis (ERA5), and ensembles (GEFS)** — the richest weather integration of the four. |
-| Motors | `SolidMotor` (grain geometry with burn regression from the thrust curve), `HybridMotor`, `LiquidMotor` (tank classes: mass-flow/mass/ullage/level-based, with fluid definitions), `GenericMotor`; thrust from `.eng`, CSV static-fire data, constants, callables, or the ThrustCurve.org API. |
+| Aerodynamics | **Barrowman-based lift coefficients per surface** (nose cones: conical/ogive/Von Kármán/power series; trapezoidal/elliptical/free-form fin *sets*; tails/boattails); since 1.13 also **individual fins** (`Fin`, `TrapezoidalFin`, `EllipticalFin`, `FreeFormFin`) for asymmetric or individually-positioned fins, plus `GenericSurface`/`LinearGenericSurface` for arbitrary user-supplied coefficient sets. Overall drag from **user-supplied power-on/power-off C_D vs Mach curves** (CSV, function, or constant) — typically generated externally (e.g. RASAero, CFD, flight data). Stability margin vs Mach and time. |
+| Atmosphere | ISA standard, fully custom profiles, **University of Wyoming soundings, Windy.com API (ECMWF/GFS/ICON/ICONEU), operational forecasts (AIGFS/GFS/NAM/RAP/HRRR/HIRESW), reanalysis (ERA5), and ensembles (GEFS)** — the richest weather integration of the five. |
+| Motors | `SolidMotor` (grain geometry with burn regression from the thrust curve), `HybridMotor`, `LiquidMotor` (tank classes: mass-flow/mass/ullage/level-based, with fluid definitions), `GenericMotor`, and since 1.13 `RingClusterMotor` (annular clusters) and `PointMassMotor`; thrust from `.eng`, CSV static-fire data, constants, callables, or the ThrustCurve.org API. |
 | Recovery | `Parachute` objects with CdS, **arbitrary Python trigger functions** (pressure/height/full state — enabling altimeter-logic emulation), sampling rate, deployment lag, and sensor noise. |
 | Earth/gravity | Latitude-dependent gravity (**Somigliana formula**) or custom; WGS84/SIRGAS2000/NAD83/SAD69 datums; elevation and topography services. |
-| Dispersion | First-class **Monte Carlo framework**: stochastic wrappers for environment/rocket/flight, parallel execution, convergence tooling, bootstrap confidence intervals, and **impact-dispersion ellipses exported to KML**. |
-| Control | **Air brakes with user-supplied controller functions** (closed-loop, receives state history and simulated sensors with noise) — supports guidance/control prototyping the other tools handle only via listeners or not at all. |
+| Dispersion | First-class **Monte Carlo framework**: stochastic wrappers for environment/rocket/flight, parallel execution, adaptive runs against a convergence criterion, bootstrap confidence intervals, and **impact-dispersion ellipses exported to KML**. Also `MultivariateRejectionSampler`, which **re-weights a completed run to a new input distribution without re-simulating** (the contribution of the 2021 paper), and a separate `SensitivityModel`. |
+| Control | **Air brakes with user-supplied controller functions** (closed-loop, receives state history and simulated sensors with noise), with both discrete and continuous controllers since 1.13, and modelled sensors as first-class objects (`Accelerometer`, `Gyroscope`, `Barometer`, `GnssReceiver`, each with noise, quantization, and per-instance seeding) — supports guidance/control prototyping the other tools handle only via listeners or not at all. |
 | Validation | Compared against 17+ documented real flights from university teams; project-reported relative errors ~0.45–4.24% on apogee/max velocity (self-reported). |
 
 ### Simulation input parameters
@@ -225,10 +238,14 @@ depends on upstream tools (OpenRocket/RASAero/measurement) for those values.
   (<https://github.com/RocketPy-Team/RocketSerializer>).
 - **Exports:** flight data to CSV; trajectories and Monte Carlo dispersion ellipses to
   KML (Google Earth); Monte Carlo inputs/outputs/errors logs (txt/csv/json).
+- **Native save:** `utilities.save_to_rpy()` writes a whole `Flight` to a `.rpy` JSON file
+  stamped with the RocketPy version (`load_from_rpy()` warns on a newer one), via per-class
+  `to_dict`/`from_dict` codecs. This is a serialization of a *simulation*, not a design
+  interchange format — no other tool reads it.
 
 ### Portability / re-use
 
-**Highest of the four — it is designed as a component.**
+**Highest of the five — it is designed as a component.**
 
 - `pip install rocketpy`; pure Python on numpy/scipy/matplotlib/netCDF4 etc.;
   plotting is separated from simulation, so it runs fully **headless** in scripts,
@@ -251,11 +268,14 @@ Journal of Aerospace Engineering, 2011); version 3.x by Willem Eerland with Box 
 András Sóbester, published as *"Cambridge Rocketry Simulator – A Stochastic
 Six-Degrees-of-Freedom Rocket Flight Simulator,"* **Journal of Open Research Software**,
 2017 (DOI 10.5334/jors.137). **Effectively unmaintained:** last release v3.1
-(October 2016), last observed activity 2017. Its ideas live on in successors
-(CUSF's CamPyRoS, RocketPy).
+(October 2016); the upstream repository's final commit is 2017-01-13, 63 commits in total.
+Its ideas live on in successors (CUSF's CamPyRoS — §5 — and RocketPy).
 
 - SourceForge: <https://sourceforge.net/projects/camrocsim/> ·
   Site: <https://cambridgerocket.sourceforge.net/>
+- Vendored at [`subs/camrocsim`](../../subs/CLAUDE-camrocsim.md), pinned at `8191db9`
+  (tip of `master`). Commit `3ed1513` is byte-identical to the released
+  `camrocsim_3.1_src.tar.gz`, so the pinned tree is v3.1 plus three post-release commits.
 
 ### Models
 
@@ -284,17 +304,23 @@ All simulation I/O is XML (`SimulationInput.xml` + `Uncertainty.xml`):
   altitudes and C_D×A values.
 - **Uncertainty:** the σ values and wind covariance structure above (only launch-angle
   and thrust uncertainty exposed in the GUI; the rest hand-edited in XML).
-- **GUI design inputs** (the GUI is adapted from OpenRocket): nose cone, body tube,
-  transitions, trapezoidal fins, inner tubes, bulkheads, mass components, parachutes,
-  motors (with an XML motor library: Cesaroni H–N, Aerotech).
+- **GUI design inputs** (the GUI is a fork of **OpenRocket 15.03dev** — `build.version`
+  in the vendored tree): nose cone, body tube, transitions, trapezoidal fins, inner tubes,
+  bulkheads, mass components, parachutes, motors (with an XML motor library: Cesaroni H–N,
+  Aerotech). The bridge to the C++ core lives in the added `net.sf.openrocket.camrocksim`
+  package (~17k lines of XML readers/writers and a CRS-side domain model).
 
 ### File formats
 
 - **XML throughout:** `SimulationInput.xml` → C++ core → `SimulationOutput.xml`
   (apogee, landing coordinates, event times, full per-run time histories).
 - Motors and atmospheres as bespoke XML files (not RASP `.eng`).
-- Direct `.ork`/`.rkt` import is **unconfirmed** (the GUI is derived from OpenRocket
-  code but no import capability is documented). No KML export found.
+- **`.ork` and `.rkt` import is confirmed present** in the vendored source, resolving what
+  earlier revisions of this report left open: the fork retains OpenRocket's
+  `GeneralRocketLoader` and its `openrocket`/`rocksim` readers, and `BasicFrame`'s open
+  dialog offers `.ork`, `.ork.gz`, `.rkt`, and `.rkt.gz` filters. Note the fork predates
+  OpenRocket 23.09, so it has **no `.CDX1` support** — the RASAero bridge that current
+  OpenRocket provides does not exist here. No KML export found.
 - Output visualization via a Python (2.7) matplotlib plotter: trajectories and
   splash-down probability plots.
 
@@ -305,37 +331,99 @@ All simulation I/O is XML (`SimulationInput.xml` + `Uncertainty.xml`):
 - Deliberate three-part architecture communicating **only via XML**: Java GUI →
   `SimulationInput.xml` → C++ core (`rocketc`) → `SimulationOutput.xml` → Python
   plotter. The authors explicitly designed for component re-use.
-- The **C++ core is a small (~20 files), dependency-light (Boost only) command-line
-  program** (`./rocketc SimulationInput.xml`) with GoogleTest coverage — trivially
-  drivable from any language by writing XML, and the authors call out `RKF45.cpp`
-  (generic adaptive ODE solver) and `vmaths.cpp` (quaternion 6-DOF math) as
-  independently reusable.
+- The **C++ core is small (27 files, ~4.6k lines), dependency-light (Boost only) and
+  command-line driven** (`./rocketc SimulationInput.xml`), with GoogleTest coverage across
+  8 test files — trivially drivable from any language by writing XML, and the authors call
+  out `RKF45.cpp` (generic adaptive ODE solver) and `vmaths.cpp` (quaternion 6-DOF math) as
+  independently reusable. One naming trap for readers: `ascentcalc` holds *all* rocket-body
+  dynamics, powered and coasting; only parachute descent lives in `descentcalc`.
 - A MATLAB/Octave toolbox reimplements the same physics without the GUI.
-- **Caveats:** GPL v3 copyleft; C++98/Boost-1.58-era code, Java 7-era GUI, Python 2.7
-  plotter; Linux and Windows builds only (no macOS binary); zero maintenance since
-  ~2017. Re-use today means adopting and modernizing the code, or mining it for its
-  stochastic wind/dispersion formulation — which remains its most valuable and
-  distinctive contribution.
+- **Caveats:** GPL v3 copyleft; C++98 code against Boost 1.62 (the version the README's
+  Windows build line names), Java 7-era GUI, Python 2.7 plotter; build instructions cover
+  Linux and Windows only, though `SystemInfo.getRunCommand()` does carry a macOS branch;
+  zero maintenance since January 2017. Re-use today means adopting and modernizing the
+  code, or mining it for its stochastic wind/dispersion formulation — which remains its
+  most valuable and distinctive contribution.
+
+---
+
+## 5. CamPyRoS
+
+**What it is.** Open-source (**GPL v3**) Python 6-DOF trajectory package from Cambridge
+University Spaceflight — the *Cambridge Python Rocketry Simulator* — written for the team's
+Martlet vehicles. Roughly 6k lines across 15 modules. Often described as a successor to
+CamRocSim (§4), but it is a **wholly separate codebase** sharing no code with the
+Box/Eerland simulator; the similar names invite confusion. **Effectively unmaintained:**
+final commit 2021-04-30, `setup.py` declaring version 1.1, with a `v1.0` tag.
+
+- Repo: <https://github.com/cuspaceflight/CamPyRoS>
+- Vendored at [`subs/campyros`](../../subs/CLAUDE-campyros.md), pinned at `1dba140`
+  (tip of `main`).
+
+### Models
+
+| Aspect | Model |
+|---|---|
+| Flight dynamics | 6-DOF rigid body with an **18-element state vector**: position, velocity, body angular rates, and the three body-axis direction vectors in inertial coordinates. Attitude is therefore a **full rotation matrix integrated component-wise**, not a quaternion — the only tool here that does so. Nothing re-orthonormalizes it between steps, so drift accumulates; a surviving upstream branch is named `stable-matrix-orientation-RK4`. |
+| Earth/gravity | **Rotating, oblate Earth (WGS84)** as the integration frame: Earth's angular velocity, semimajor axis, eccentricity, and flattening are first-class constants, so Coriolis and centrifugal effects fall out of the frame rather than being added as terms. Four frames (inertial, launch-site, body, lat/lon/alt) with time-dependent conversions, since the launch frame rotates away from the inertial one during flight. |
+| Integrator | `scipy.integrate.DOP853`, stepped manually in a loop rather than run to completion; fixed step optional; defaults `rtol=1e-7`, `atol=1e-14`. |
+| Aerodynamics | **No geometry-based model at all.** `AeroData` interpolates user-supplied CA/CN/COP grids over Mach × angle of attack, loaded via `AeroData.from_rasaero()` from a **RASAero II CSV export** or from explicit lists; the coefficient functions can be replaced with arbitrary callables. Scalar pitch and roll damping coefficients (`moment = C·ρ·ω²`). |
+| Aerodynamic heating | `AeroHeatingAnalysis` (~1.8k lines, the largest module): tangent-ogive nose geometry, oblique and normal shock relations, Prandtl–Meyer expansion, compressible-flow property ratios, and a transient skin-temperature solve. **No other tool in this survey models heating at all.** |
+| Mass properties | `MassModel` sums constant and time-varying components (`HollowCylinder`, `DryMass`, `LiquidTank`, `SolidFuel`), assuming axial symmetry with all centres of mass on the body x-axis. Propellant slosh modelled separately in `slosh.py`. |
+| Wind | **Live NOAA GFS** at 0.25°/1-hour resolution via `getgfs`, snapped onto the forecast grid, with optional profile caching; constant-vector fallback. Historic forecasts explicitly unsupported. |
+| Recovery | Deployment by **apogee detection through polling** — altitude compared against the previous poll every `alt_poll_interval` (default 1 s), so trigger granularity is baked in; no altitude or callable triggers. Descent is **not separately integrated**: once deployed, attitude is *constructed* each step by pointing the body x-axis into the relative wind and zeroing the angular rates. |
+| Dispersion | `StatisticalModel` over a JSON config of `[mean, std_dev]` pairs (launch site, mass model, aero, thrust magnitude and alignment, parachute, and multiplicative gravity/pressure/density/speed-of-sound factors), applied through `error`/`env_vars` dicts. `ray` for parallelism, degrading **silently** to single-threaded when absent. |
+
+### Simulation input parameters and formats
+
+Everything is constructed in Python: `MassModel`, `Motor`, `AeroData`, and `LaunchSite`
+are composed into a `Rocket`, whose `run()` integrates and returns a **pandas DataFrame**
+(time, `pos_i`, `vel_i`, `b2imat`, `w_b`, events). Aerodynamic input comes from a RASAero II
+CSV; the stochastic model reads a JSON settings file; motor data comes from a CSV in the
+project's own `novus_sim` format. There is **no design file format and no importer** for
+`.ork`, `.rkt`, or `.CDX1` — the RASAero CSV is its only interchange with the wider ecosystem.
+
+### Portability / re-use
+
+**Poor in practice, despite being a library by construction.**
+
+- **No meaningful test suite**: two wind notebooks, plus one `unittest` file that manipulates
+  `sys.path` and reads fixtures by paths relative to the repo root, so it runs from exactly
+  one working directory. The CI "Test case" workflow invokes a generic third-party action
+  with no arguments. A `gui.py` module exists but **cannot import** — it references a
+  `RASAeroData` class that is defined nowhere in the package.
+- **Most of the library needs network access**, because wind comes from live GFS — so results
+  are not reproducible across days without caching.
+- `environment.yml` is a fully pinned conda export from a 2021 macOS machine (Python 3.8,
+  numpy 1.19.3, ray 1.1.0): a record of what once worked, not a portable environment.
+- **GPL v3**, the same copyleft constraint as OpenRocket and CamRocSim.
+- What is worth mining: the **rotating-Earth frame and its transforms**, and the
+  **aerodynamic heating model** — neither has an equivalent in the other four.
 
 ---
 
 ## Comparative summary
 
-| | OpenRocket | RASAero II | RocketPy | Cambridge (CamRocSim) |
-|---|---|---|---|---|
-| License | GPL v3 | Freeware, closed source | **MIT** | GPL v3 |
-| Language | Java | .NET (closed) | Python ≥ 3.10 | C++ core / Java GUI / Python plots |
-| Status (2026) | Active (24.12) | Static since 2019 | Active (1.13.0) | Unmaintained since ~2017 |
-| Ascent DOF | 6-DOF | 2/3-DOF | 6-DOF (3-DOF option) | 6-DOF |
-| Aero source | Extended Barrowman, built-in from geometry | Built-in, Mach 0.01–25, power-on/off | Barrowman lift + **user-supplied drag curves** | Barrowman + tabulated C_D(α, Re) |
-| Mach range strength | Subsonic (best), semi-empirical super | **Subsonic → hypersonic** | Whatever the supplied curves cover | Subsonic (Ma < 0.4 assumptions) |
-| Integrator | Fixed-step RK4 | Not published | scipy LSODA (adaptive, selectable) | RKF45 adaptive |
-| Weather input | ISA + multi-level wind + CSV | Std. atmosphere + scalar wind | ISA/custom/**soundings/forecasts/ERA5/ensembles** | Tabulated XML profiles |
-| Monte Carlo | Via scripting (orhelper/extensions) | No | **Built-in framework** (parallel, KML ellipses) | **Built-in, core design goal** |
-| Design formats | `.ork` (zip+XML); imports/exports `.rkt`, `.CDX1` | `.CDX1` (XML); imports `.rkt` | Code/JSON; `.ork` via RocketSerializer | Bespoke XML |
-| Motor formats | `.eng`, `.rse` (thrustcurve.org DB) | `.eng` | `.eng`, CSV, ThrustCurve API | Bespoke XML |
-| Headless use | Yes — Maven-published core + listener API | GUI automation only (pyrasaero) | **Native — it is a library** | Yes — CLI core driven by XML |
-| Embedding suitability | Good (JVM, GPL) | Poor (data exporter only) | **Excellent (MIT, pip)** | Good architecture, stale code |
+| | OpenRocket | RASAero II | RocketPy | CamRocSim | CamPyRoS |
+|---|---|---|---|---|---|
+| Vendored at | `subs/openrocket` | — (closed source) | `subs/rocketpy` | `subs/camrocsim` | `subs/campyros` |
+| License | GPL v3 | Freeware, closed source | **MIT** | GPL v3 | GPL v3 |
+| Language | Java | .NET (closed) | Python ≥ 3.10 | C++ core / Java GUI / Python plots | Python |
+| Status (2026) | Active (24.12) | Static since 2019 | Active (1.13.0) | Unmaintained since Jan 2017 | Unmaintained since Apr 2021 |
+| Ascent DOF | 6-DOF | 2/3-DOF | 6-DOF (3-DOF option) | 6-DOF | 6-DOF |
+| Attitude state | Quaternion | n/a (≤3-DOF) | Quaternion | Quaternion | **Rotation matrix** |
+| Integrated quantity | Velocity | n/a | Velocity | **Momentum** | Velocity |
+| Earth model | Flat / spherical / WGS84 + Coriolis | Flat | Flat + latitude-dependent gravity | Flat, inverse-square gravity | **Rotating oblate WGS84** |
+| Aero source | Extended Barrowman, built-in from geometry | Built-in, Mach 0.01–25, power-on/off | Barrowman lift + **user-supplied drag curves** | Barrowman + tabulated C_D(α, Re) | **Imported tables only** (RASAero CSV) |
+| Mach range strength | Subsonic (best), semi-empirical super | **Subsonic → hypersonic** | Whatever the supplied curves cover | Subsonic (Ma < 0.4 assumptions) | Whatever the supplied curves cover |
+| Integrator | Fixed-step RK4 | Not published | scipy LSODA (adaptive, selectable) | RKF45 adaptive | scipy DOP853 |
+| Aero heating | No | No | No | No | **Yes** |
+| Weather input | ISA + multi-level wind + CSV | Std. atmosphere + scalar wind | ISA/custom/**soundings/forecasts/ERA5/ensembles** | Tabulated XML profiles | **Live GFS** (network-bound) |
+| Monte Carlo | Via scripting (orhelper/extensions) | No | **Built-in framework** (parallel, KML ellipses, MRS) | **Built-in, core design goal** | Built-in (`StatisticalModel`, ray) |
+| Design formats | `.ork` (zip+XML); imports/exports `.rkt`, `.CDX1` | `.CDX1` (XML); imports `.rkt` | Code; `.rpy` save; `.ork` via RocketSerializer | Bespoke XML; imports `.ork`/`.rkt` | None — code only |
+| Motor formats | `.eng`, `.rse` (thrustcurve.org DB) | `.eng` | `.eng`, CSV, ThrustCurve API | Bespoke XML | CSV (`novus_sim` format) |
+| Headless use | Yes — Maven-published core + listener API | GUI automation only (pyrasaero) | **Native — it is a library** | Yes — CLI core driven by XML | Native, but network-bound |
+| Embedding suitability | Good (JVM, GPL) | Poor (data exporter only) | **Excellent (MIT, pip)** | Good architecture, stale code | Poor (GPL, untested, dormant) |
 
 ## Observations for the consortium
 
@@ -366,13 +454,20 @@ All simulation I/O is XML (`SimulationInput.xml` + `Uncertainty.xml`):
    profiles, confidence-bounded splash-down zones) predates and complements RocketPy's
    Monte Carlo framework and is worth mining even though the codebase itself is stale.
 
+6. **The two dormant projects are worth keeping for what only they have.** CamRocSim
+   contributes the correlated-wind formulation above and a momentum-based formulation of
+   the equations of motion; CamPyRoS contributes a rotating oblate-Earth integration frame
+   and the only aerodynamic heating model in the survey. Neither is a viable dependency —
+   both are GPL, unmaintained, and (in CamPyRoS's case) untested — so the value is in the
+   physics and the formulations, not the code.
+
 ---
 
 ## A common simulation core: comprehensive feature set
 
 This section sketches the feature set a single simulation **library** would need in
 order to serve, if correctly implemented, as a drop-in replacement for the simulation
-cores of all four projects surveyed above. The scope is deliberately the *core only*:
+cores of all five projects surveyed above. The scope is deliberately the *core only*:
 flight physics, environment, events, dispersion, and the programmatic surface around
 them. Design editing, CAD, visualization, GUIs, and motor/parts databases are
 consumers of such a library, not part of it. Each feature below is a superset drawn
@@ -412,8 +507,9 @@ demonstrably implementable and demonstrably needed.
 
 ### 3. Aerodynamics — a pluggable coefficient interface
 
-The single largest divergence among the four tools is *where aerodynamic coefficients
-come from*. A common core should therefore define aerodynamics as an **interface**
+The single largest divergence among the five tools is *where aerodynamic coefficients
+come from* — spanning fully built-in (OpenRocket, RASAero) to entirely imported
+(CamPyRoS, which has no geometry-based model at all). A common core should therefore define aerodynamics as an **interface**
 (coefficients as functions of Mach, angle of attack, Reynolds number, power-on/off
 state, and control deflections) with multiple interchangeable providers:
 
@@ -457,7 +553,10 @@ state, and control deflections) with multiple interchangeable providers:
   (CamRocSim's multivariate-Gaussian formulation — see §7).
 - **Geodesy and gravity**: flat-Earth, spherical, and WGS84 ellipsoid modes with
   Coriolis (OpenRocket), latitude-dependent gravity (RocketPy's Somigliana), datum
-  handling, and launch-site elevation/temperature/pressure anchoring.
+  handling, and launch-site elevation/temperature/pressure anchoring. The most complete
+  form of this is integrating directly in an Earth-centred rotating frame so that Coriolis
+  and centrifugal terms are structural rather than corrections (CamPyRoS) — which matters
+  only for long-range or high-apogee vehicles, and can otherwise be reduced away.
 
 ### 6. Events, recovery, and control hooks
 
@@ -521,7 +620,7 @@ These are what make it a *component* rather than another application:
   language-agnostic, sandbox-friendly integration.
 - **Bindings strategy**: a core implemented in a language that binds outward cheaply
   (or a reference implementation plus a C ABI), so JVM, Python, and MATLAB consumers —
-  the audiences the four projects actually serve — are all first-class.
+  the audiences these projects actually serve — are all first-class.
 - **Permissive licensing (MIT/BSD/Apache)**: GPL v3 is what prevents OpenRocket's and
   CamRocSim's cores from being universal components today; RocketPy's MIT license is
   why it embeds everywhere.
@@ -670,6 +769,20 @@ methods, not the code.
 
 All URLs accessed 2026-08-22.
 
+### Vendored source
+
+Four of the five packages are pinned as submodules under `subs/`, each with an
+agent-facing primer; claims in this report about their internals were checked against
+these exact trees. See [`subs/CLAUDE.md`](../../subs/CLAUDE.md) for the set, and
+[`docs/ref/`](../ref/README.md) for local copies of the papers cited below.
+
+| Package | Path | Pinned commit |
+|---|---|---|
+| OpenRocket | [`subs/openrocket`](../../subs/CLAUDE-openrocket.md) | `e0dc0cd` (2025-11-08, v24.12) |
+| RocketPy | [`subs/rocketpy`](../../subs/CLAUDE-rocketpy.md) | `9bd6ad3` (tag `v1.13.0`) |
+| CamRocSim | [`subs/camrocsim`](../../subs/CLAUDE-camrocsim.md) | `8191db9` (2017-01-13) |
+| CamPyRoS | [`subs/campyros`](../../subs/CLAUDE-campyros.md) | `1dba140` (2021-04-30) |
+
 ### Peer-reviewed publications
 
 1. Niskanen, S. (2009). *Development of an Open Source model rocket simulation
@@ -748,8 +861,10 @@ All URLs accessed 2026-08-22.
     RocketPy's motor data). <https://www.thrustcurve.org/>
 22. OpenRocket wiki. "Third-Party Compatibility" — interchange between OpenRocket,
     RockSim, and RASAero II. <https://wiki.openrocket.info/Third-Party_Compatibility>
-23. Cambridge University Spaceflight. *CamPyRoS* [software] — successor 6-DOF Python
-    simulator to CamRocSim. <https://github.com/cuspaceflight/CamPyRoS>
+23. Cambridge University Spaceflight. *CamPyRoS — Cambridge Python Rocketry Simulator*
+    [software], version 1.1 (final commit 2021-04-30). GNU GPL v3. A separate codebase
+    from CamRocSim despite the name and shared institution.
+    <https://github.com/cuspaceflight/CamPyRoS>
 
 ### RASAero method disclosures (primary)
 
