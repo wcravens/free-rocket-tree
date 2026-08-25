@@ -16,6 +16,39 @@ with OpenRocket's GPLv3, which matters for any code we lift or link.
 It is a *library*, not an application: no GUI, and no file format of its own beyond a JSON save
 (`.rpy`). Rockets are defined in Python.
 
+## Documentation
+
+RocketPy's derivations live in the tree under `docs/technical/`, separate from the user guide.
+Its `index.rst` warns that the section "is still a work in progress ... not everything is
+documented yet," so treat absence there as unwritten, not as undefined behaviour.
+
+**The filename is a trap.** `equations_of_motion.rst` is titled *Equations of Motion **v0*** — the
+pre-1.0 formulation, written by Giovani Ceotto in 2017 and converted to reST in 2022, and it says
+so itself: it assumed solid motors only, which changed at v1.0.0. `equations_of_motion_v1.rst` is
+the formulation "used in v1.0 onwards" — mass-varying linear and angular equations carrying
+`r_CM`, `r_noz` and the `ṁ`/`m̈` terms. **We are pinned at v1.13.0, so v1 is the live one**; cite v0
+only for history, and note that it defers to the journal article as the "official documentation."
+
+- **`docs/technical/aerodynamics/`** — `elliptical_fins.rst`, `individual_fins.rst`,
+  `roll_equations.rst`: the fin geometry and roll-moment derivations behind `rocket/aero_surface/`.
+- **`docs/technical/sensitivity.rst`** — the theory behind the sensitivity analysis in
+  `sensitivity/`, which pairs with the Monte Carlo machinery.
+- **`docs/user/`, `docs/reference/`, `docs/examples/`** — end-user guide, API reference generated
+  from docstrings, and ~20 flight notebooks for real vehicles. Published at
+  <https://docs.rocketpy.org/>. No derivations.
+
+Cite the project as Ceotto, G. H., Schimitt, R. N., Alves, G. F., Pezente, L. A., & Carmo, B. S.
+(2021), *"RocketPy: Six Degree-of-Freedom Rocket Trajectory Simulator,"* Journal of Aerospace
+Engineering 34(6), <https://doi.org/10.1061/(ASCE)AS.1943-5525.0001331> — the canonical reference,
+recorded in `CITATION.cff` at the repo root. (That file's top-level `url:` field points at
+`github/linguist`, an upstream copy-paste slip; the DOI and `preferred-citation` block are correct.)
+
+`docs/technical/references.rst` cites only three sources — Barrowman 1967 and 1970, and
+**[Niskanen]**, the OpenRocket thesis vendored at `subs/openrocket/doc/`. Upstream dates it 2013,
+which is the *technical documentation's* revision date rather than the 2009 thesis's; see
+`CLAUDE-openrocket.md` for the distinction. The shared Barrowman lineage is why the two trees'
+aerodynamics are worth reading against each other.
+
 ## Common Commands
 
 Everything routes through the `Makefile`, which is OS-agnostic and the source of truth:
