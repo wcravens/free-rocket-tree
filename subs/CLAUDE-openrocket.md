@@ -13,6 +13,29 @@ After cloning, initialize the component-database submodule or resource loading w
 git submodule init && git submodule update
 ```
 
+## Documentation
+
+OpenRocket began as a Master's thesis, and the derivations behind the models ship in the tree rather
+than living only on the web:
+
+- **`doc/thesis.pdf`** — Niskanen, S., *Development of an Open Source model rocket simulation
+  software*, M.Sc. thesis, Helsinki University of Technology, Espoo, 20.5.2009. The original
+  motivating work — the software was written as this thesis project. Licensed CC BY-NC-ND.
+- **`doc/techdoc/`** — *OpenRocket technical documentation*: `techdoc.pdf` plus the `.tex` sources it
+  builds from. The thesis text extended and updated for later releases (last revision 2013-05-10,
+  for OpenRocket 13.05) and relicensed CC BY-SA. **This is the citation target for the models as
+  implemented**; reach for `thesis.pdf` only when you specifically want the 2009 original. Chapters
+  track the code: `chapter-aerodynamic-properties.tex` derives the extended Barrowman normal-force,
+  roll and drag models in `aerodynamics/barrowman` (including the tumbling-body drag the tumble
+  stepper needs), and `chapter-flight-simulation.tex` covers the atmosphere/wind models under
+  `models`, the mass and moment-of-inertia calculations in `masscalc`, and the quaternion-based RK4
+  integration and event handling in `simulation`.
+- Both PDFs are also published at <https://openrocket.info/documentation.html>.
+- **`doc/design/`** — UMLet diagrams (simulation sequence, optimization classes);
+  `doc/properties.txt` documents the `openrocket.*` system properties.
+- **`docs/`** — Sphinx source for the *user* guide at <https://openrocket.readthedocs.io/>. Despite
+  the near-identical name, unrelated to `doc/`: end-user material, no derivations.
+
 ## Common Commands
 
 ```bash
