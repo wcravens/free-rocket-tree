@@ -62,9 +62,33 @@ ballistic-coefficient coast model (`src/simulator.rs:1177`). Likewise `SixDofCon
 (`src/rocket.rs:459-464`) declares CG/CP/controller-position and moment-of-inertia file names that
 nothing in `src/` consumes.
 
+### The techdoc says 6-DOF and derives 3-DOF
+
+`docs/OpenTsiolkovsky_techdoc.pdf` (with `.tex` source) — *OpenTsiolkovsky テクニカルドキュメント*,
+by Takahiro Inagawa (稲川貴大) of Interstellar Technologies, in Japanese — is the project's only
+derivation document, and it repeats the README's claim in the introduction: 「OpenTsiolkovskyでは
+6自由度で計算しています」, *OpenTsiolkovsky computes with six degrees of freedom*.
+
+**Its equations do not.** §運動方程式 derives translation only —
+
+- `dr/dt = V_I` and `dV_I/dt = (1/m)(F_TI + F_AI + F_gI)`, integrated in ECI;
+- 外力 (external forces) enumerated as exactly three: thrust `F_TB`, aerodynamic force `F_AA`,
+  gravity `g_H` — forces, no moments;
+- 座標変換行列 listing three DCMs (`BODY→ECI`, `AIR→BODY`, `NED→ECI`) whose job is to orient
+  body-frame thrust and resolve angle of attack.
+
+There is no rotational equation of motion, no moment, no inertia tensor and no quaternion anywhere
+in its 332 lines; the single `\omega` is Earth's rotation rate in the ECI→ECEF transform. That is
+the prescribed-attitude model the Rust engine implements, written down.
+
+So the techdoc **corroborates the Rust tree and contradicts its own abstract** — useful, because it
+is the document a skeptical reader reaches for after distrusting the README. Cite its §運動方程式
+and §外力 for the model as implemented; do not cite its introduction. Nothing in the tree documents
+the legacy C++ 6-DOF derivation.
+
 **So: cite the pinned Rust tree as a 3-DOF solver with prescribed attitude, and the legacy C++ as the
 6-DOF one — and do not describe the legacy tree as the live one.** The README describes the union of
-both.
+both, and the techdoc's introduction inherits the same overstatement.
 
 ## Layout
 
@@ -84,7 +108,8 @@ examples/               param_sample_01.json, param_momo.json, SS-520-4/
 frontend/               React + TypeScript + Vite, bun.lock
 legacy_cpp/             original C++ (src/, boost/, test/, Makefile, Xcode project)
 scripts/                wasm_build.sh, vercel-build.sh
-docs/                   quick-start, development, wasm, configuration
+docs/                   OpenTsiolkovsky_techdoc.{tex,pdf} — the derivations (see above);
+                        quick-start, development, wasm, configuration
 ```
 
 `vercel.json` at the root — the front end is deployed as a hosted web app.
