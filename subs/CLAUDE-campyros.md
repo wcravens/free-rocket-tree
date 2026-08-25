@@ -8,8 +8,10 @@ exists. **Treat this as an archived research codebase, not a maintained library.
 smallest and least finished of the three simulators we vendor, and the notes below flag the parts
 that do not actually run.
 
-Not the Cambridge Rocketry Simulator (`camrocsim`) that `docs/research/` surveys as CRS — that is a
-separate C++/Java project by Box and Eerland, not vendored here.
+Not the Cambridge Rocketry Simulator that `docs/research/` surveys as CRS — that is a separate
+C++/Java project by Box and Eerland, vendored alongside this one at `subs/camrocsim`. The two are
+related as well as confusable: CamPyRoS's own primary model reference is the CRS paper (see
+Documentation below).
 
 ## Project Overview
 
@@ -27,6 +29,40 @@ keeping around:
   skin-temperature solve. Neither of the other two simulators models heating at all.
 - **Live GFS wind** fetched per query through `getgfs`, rather than from a bundled or
   pre-downloaded atmosphere.
+
+## Documentation
+
+Sparse, and none of it where you would expect. There is no derivation document in the package.
+
+- **`legacy/Coordinate System Definitions.docx`** — *Coordinate System Documentation, 6
+  Degrees-of-Freedom Trajectory Simulator*, Cambridge University Spaceflight. Defines the inertial,
+  launch-site and body frames that `transforms.py` implements, and fixes the `_i` / `_l` / `_b`
+  variable-suffix convention the code uses throughout. Its §2 "Step by step of the simulation
+  process" is marked **(outdated)** in the document itself — read §1 only.
+- **`legacy/Variable Moment of Inertia Model.docx`** — *Variable Moment of Inertia Model for the
+  CUSF 6DOF Trajectory Simulator*, Daniel Gibbons. The derivation behind `mass.py`: shapes,
+  parallel-axis theorem, and the liquid/solid fuel geometry. It states the assumptions the code
+  silently relies on — no slosh, cylindrical tank, vapour phase ignored, and liquids treated as
+  inviscid so they contribute nothing to the roll moment of inertia.
+- **`legacy/aerodynamic heating test cases/`** — validation cases for `heating.py` (NASA TND889,
+  NQLDW019 Problem BA, Black Brant VC Flight 21.006) as paired `.json`/`.py`, with a
+  `How to run the test cases.txt`. The closest thing the project has to a V&V suite.
+- **`docs/`** — Sphinx sources plus a **checked-in `build/html`**; API-level only, generated from
+  docstrings. Nothing here derives a model.
+
+Both `.docx` files sit in `legacy/`, which is otherwise dead code — the documentation is current
+even though its neighbours are not.
+
+Cite the project as Gibbons, D., & Strong-Wright, J. (2021), *cuspaceflight/CamPyRoS: First release!*
+(V1.0), Zenodo, <https://doi.org/10.5281/zenodo.4535672>.
+
+The README's Main Reference [1] is Box, Bishop, and Hunt, *"Stochastic Six-Degree-of-Freedom Flight
+Simulator for Passively Controlled High-Power Rockets,"* Journal of Aerospace Engineering (ASCE)
+24(1), 2011 — **the Cambridge Rocketry Simulator paper**, the same one `CLAUDE-camrocsim.md` cites.
+Reference [2] is the NQLD019 tangent-ogive heating program, which is what `heating.py` and its test
+cases implement. The README also points at the OpenRocket technical documentation
+(`subs/openrocket/doc/techdoc/`) for fin cant and roll damping — listed there as unbuilt "potential
+for expansion", not as something CamPyRoS implements.
 
 ## Common Commands
 
