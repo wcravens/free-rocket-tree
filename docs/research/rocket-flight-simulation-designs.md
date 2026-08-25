@@ -904,7 +904,7 @@ RocketPy/CamRocSim):
 readers turned up a counterexample to the assumption that RockSim `.rkt` and RASAero
 `.CDX1` have no reader outside OpenRocket: the FreeCAD **Rocket** workbench
 ([davesrocketshop/Rocket](https://github.com/davesrocketshop/Rocket), LGPL-2.1-or-later,
-78 stars, actively pushed as of this writing) ships its own SAX-based readers for
+78 stars, `master` at 2026-08-18) ships its own SAX-based readers for
 `.ork`, `rocksimdocument` (`.rkt`), **and** `rasaerodocument` (`.CDX1`), written
 independently of OpenRocket's Java implementation (the companion catalog's §8 table
 now lists it). The gap narrows rather than closes, though: those readers parse straight
